@@ -5,6 +5,7 @@
 ### Added
 
 - Added GreenPT US region provider `greenpt-us` (`https://api.us.greenpt.ai/v1`) with a curated chat-model subset; shares `GREENPT_API_KEY` with the EU provider.
+- Added `RetryPolicy.maxAgentDelayMs` support to cap shared assistant retry backoff for summarization calls ([#8826](https://github.com/earendil-works/pi/issues/8826)).
 
 ## [0.85.1] - 2026-09-05
 
