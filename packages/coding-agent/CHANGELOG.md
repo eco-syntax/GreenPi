@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Prevented managed git packages from automatically installing Pi peer dependencies and added warnings for extension packages that list host-provided modules in `dependencies` ([#9863](https://github.com/earendil-works/pi/issues/9863)).
+
 ### Added
 
 - First-run provider onboarding: interactive startup offers local llama.cpp (recommended), GreenPT, or Viro AI. Choosing llama.cpp installs a pinned `llama-server` build to `~/.greenpi/agent/llama/bin/`, starts it in router mode on port 8080 (`LLAMA_BASE_URL` overrides), downloads the default model `Colby/apertus-v1.5-8b-text-Q4_K_M-GGUF` from Hugging Face, loads it, and saves it as the startup default. Skippable; `PI_LLAMA_SETUP=0` disables, `PI_LLAMA_SETUP=1` re-runs.
