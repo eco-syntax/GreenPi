@@ -10,6 +10,7 @@
 ### Fixed
 
 - Fixed model-level `samplingParams` being dropped by direct `stream()`/`complete()` calls on OpenAI-compatible APIs ([#9506](https://github.com/earendil-works/pi/issues/9506)).
+- Fixed OpenAI Responses streams returning unfinished tool calls as runnable, which made servers that omit `output_index` (such as llama.cpp) run mixed-up commands; such streams now end with an error ([#9974](https://github.com/earendil-works/pi/issues/9974)).
 
 ## [0.85.1] - 2026-09-05
 
