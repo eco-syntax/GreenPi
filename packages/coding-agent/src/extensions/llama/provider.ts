@@ -46,9 +46,33 @@ async function routerAutoloadEnabled(
 	}
 }
 
-function toPiModel(model: LlamaModelInfo, serverUrl: string): Model<"openai-completions"> {
-	const reportedContextWindow = model.meta?.n_ctx ?? model.meta?.n_ctx_train;
-	const contextWindow = reportedContextWindow && reportedContextWindow > 0 ? reportedContextWindow : 128000;
+function configuredContextWindow(model: LlamaModelInfo): number | undefined {
+	const args = model.status.args ?? [];
+	for (let index = 0; index < args.length - 1; index++) {
+		const flag = args[index];
+		if (flag !== "--ctx-size" && flag !== "-c" && flag !== "-ctx") continue;
+		const contextWindow = Number(args[index + 1]);
+		if (Number.isSafeInteger(contextWindow) && contextWindow > 0) return contextWindow;
+	}
+	return undefined;
+}
+
+function contextWindowOf(model: LlamaModelInfo, cachedContextWindow?: number): number {
+	const runtimeContextWindow = model.meta?.n_ctx;
+	if (runtimeContextWindow && runtimeContextWindow > 0) return runtimeContextWindow;
+	const configuredContext = configuredContextWindow(model);
+	if (configuredContext) return configuredContext;
+	if (cachedContextWindow && cachedContextWindow > 0) return cachedContextWindow;
+	const trainingContextWindow = model.meta?.n_ctx_train;
+	return trainingContextWindow && trainingContextWindow > 0 ? trainingContextWindow : 128000;
+}
+
+function toPiModel(
+	model: LlamaModelInfo,
+	serverUrl: string,
+	cachedContextWindow?: number,
+): Model<"openai-completions"> {
+	const contextWindow = contextWindowOf(model, cachedContextWindow);
 	return {
 		id: model.id,
 		name: model.id,
@@ -138,11 +162,15 @@ export function createLlamaProvider(): LlamaProviderController {
 		},
 		getModels: () => models,
 		refreshModels: async (context: RefreshModelsContext): Promise<void> => {
+			const cachedContextWindows = new Map<string, number>();
 			if (context.stored) {
 				const restored = context.stored.models.filter(
 					(model): model is Model<"openai-completions"> =>
 						model.provider === LLAMA_PROVIDER_ID && model.api === "openai-completions",
 				);
+				for (const model of restored) {
+					cachedContextWindows.set(model.id, model.contextWindow);
+				}
 				if (
 					!(await context.publish({
 						update: () => {
@@ -164,7 +192,7 @@ export function createLlamaProvider(): LlamaProviderController {
 			if (context.signal.aborted) return;
 			const refreshed = catalog
 				.filter((model) => modelIsSelectable(model, routerAutoload))
-				.map((model) => toPiModel(model, serverUrl));
+				.map((model) => toPiModel(model, serverUrl, cachedContextWindows.get(model.id)));
 			await context.publish({
 				persist: { models: refreshed, checkedAt: Date.now() },
 				update: () => {
