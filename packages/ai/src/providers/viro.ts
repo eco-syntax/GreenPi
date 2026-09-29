@@ -3,8 +3,8 @@ import { envApiKeyAuth } from "../auth/helpers.ts";
 import { createProvider, type Provider } from "../models.ts";
 import { fetchOpenAICompatibleModels } from "./local.ts";
 
-// Viro AI OpenAI-compatible endpoint (https://ai.viro.app/api).
-const VIRO_BASE_URL = "https://ai.viro.app/api";
+// Viro AI OpenAI-compatible endpoint (https://api.viro.app/v1).
+const VIRO_BASE_URL = "https://api.viro.app/v1";
 
 /** Viro AI with a dynamically discovered model catalog (GET /models). */
 export function viroProvider(): Provider<"openai-completions"> {

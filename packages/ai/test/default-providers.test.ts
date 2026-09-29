@@ -24,7 +24,35 @@ describe("default-presented providers", () => {
 
 	it("viro discovers models dynamically", () => {
 		expect(viroProvider().getModels()).toEqual([]);
-		expect(viroProvider().baseUrl).toBe("https://ai.viro.app/api");
+		expect(viroProvider().baseUrl).toBe("https://api.viro.app/v1");
+	});
+
+	it("viro discovers models from its own base URL with the API key", async () => {
+		const provider = viroProvider();
+		const requests: Array<{ url: string; authorization: string | null }> = [];
+		const originalFetch = globalThis.fetch;
+		globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+			const headers = init?.headers as Record<string, string> | undefined;
+			requests.push({
+				url: String(input),
+				authorization: headers?.authorization ?? null,
+			});
+			return new Response(JSON.stringify({ data: [{ id: "viro-1" }] }), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			});
+		}) as typeof fetch;
+		try {
+			await provider.refreshModels?.({
+				credential: { type: "api_key", key: "test-key" },
+				publish: async () => true,
+				allowNetwork: true,
+				signal: new AbortController().signal,
+			});
+			expect(requests).toEqual([{ url: "https://api.viro.app/v1/models", authorization: "Bearer test-key" }]);
+		} finally {
+			globalThis.fetch = originalFetch;
+		}
 	});
 
 	it("parses OpenAI-compatible /models responses", async () => {

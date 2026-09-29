@@ -27,7 +27,7 @@ pi --provider greenpt --model glm-5.2
 
 ### Viro AI
 
-OpenAI-compatible API at `https://ai.viro.app/api`. Models are discovered dynamically from the server (`GET /models`).
+OpenAI-compatible API at `https://api.viro.app/v1`. Models are discovered dynamically from the server (`GET /models`).
 
 ```bash
 export VIRO_API_KEY=...
