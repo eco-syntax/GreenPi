@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed memory retained per rendered message: `Markdown` holds its parsed tokens weakly, and `Markdown`, `Text`, and `Box` flatten their cached lines. A long assistant message keeps about a fifth of the heap it kept before.
+
 ## [0.85.1] - 2026-09-05
 
 ## [0.85.0] - 2026-09-04
