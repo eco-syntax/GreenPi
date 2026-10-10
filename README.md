@@ -8,7 +8,7 @@
   <a href="https://www.npmjs.com/package/@earendil-works/pi-coding-agent"><img alt="npm" src="https://img.shields.io/npm/v/@earendil-works/pi-coding-agent?style=flat-square" /></a>
 </p>
 
-> New issues and PRs from new contributors are auto-closed by default. Maintainers review auto-closed issues daily. See [CONTRIBUTING.md](CONTRIBUTING.md).
+This is a fork of [pi](https://github.com/earendil-works/pi); issues and PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 # GreenPi Agent Harness (local-first fork)
 
