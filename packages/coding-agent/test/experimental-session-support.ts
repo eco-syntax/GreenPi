@@ -35,6 +35,31 @@ export async function configureExperimentalWorkerModel(agentDir: string): Promis
 	await writeFile(join(agentDir, "auth.json"), JSON.stringify({ anthropic: { type: "api_key", key: "test-key" } }), {
 		mode: 0o600,
 	});
+	// GreenPi's default runtime only registers local/default providers; declare
+	// anthropic via models.json so session workers can resolve the test models.
+	const anthropicModel = (id: string) => ({
+		id,
+		name: id,
+		reasoning: true,
+		input: ["text"],
+		cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+		contextWindow: 200000,
+		maxTokens: 8192,
+	});
+	await writeFile(
+		join(agentDir, "models.json"),
+		JSON.stringify({
+			providers: {
+				anthropic: {
+					baseUrl: "https://api.anthropic.com",
+					apiKey: "test-key",
+					api: "anthropic-messages",
+					models: [anthropicModel("claude-sonnet-4-5"), anthropicModel("claude-opus-4-6")],
+				},
+			},
+		}),
+		{ mode: 0o600 },
+	);
 }
 
 export async function readExperimentalSessionState(

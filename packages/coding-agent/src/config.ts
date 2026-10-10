@@ -502,6 +502,10 @@ export const PACKAGE_NAME: string = pkg.name || "@earendil-works/pi-coding-agent
 export const APP_NAME: string = piConfigName || "pi";
 export const APP_TITLE: string = piConfigName ? APP_NAME : "π";
 export const CONFIG_DIR_NAME: string = pkg.piConfig?.configDir || ".pi";
+// Project-level config dir stays ".pi" even when CONFIG_DIR_NAME is renamed, so
+// project settings, extensions, skills, and prompts written for upstream pi keep
+// working in forks.
+export const PROJECT_CONFIG_DIR_NAME = ".pi";
 export const VERSION: string = pkg.version || "0.0.0";
 
 // e.g., GREENPI_CODING_AGENT_DIR (or PI_CODING_AGENT_DIR upstream)
