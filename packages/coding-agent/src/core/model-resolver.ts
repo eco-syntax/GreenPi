@@ -60,6 +60,7 @@ export const defaultModelPerProvider: Partial<Record<KnownProvider, string>> = {
 	"xiaomi-token-plan-ams": "mimo-v2.5-pro",
 	"xiaomi-token-plan-sgp": "mimo-v2.5-pro",
 	greenpt: "glm-5.2",
+	"greenpt-us": "glm-5.3",
 };
 
 export interface ScopedModel {

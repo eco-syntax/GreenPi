@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { builtinProviders } from "../src/providers/all.ts";
-import { greenptProvider } from "../src/providers/greenpt.ts";
+import { greenptProvider, greenptUsProvider } from "../src/providers/greenpt.ts";
 import { fetchOpenAICompatibleModels } from "../src/providers/local.ts";
 import { viroProvider } from "../src/providers/viro.ts";
 
 describe("default-presented providers", () => {
 	it("registers GreenPT, Viro, and local inference servers", () => {
 		const ids = new Set(builtinProviders().map((provider) => provider.id));
-		for (const id of ["greenpt", "viro", "lmstudio", "ollama", "vllm", "llama-cpp"]) {
+		for (const id of ["greenpt", "greenpt-us", "viro", "lmstudio", "ollama", "vllm", "llama-cpp"]) {
 			expect(ids.has(id)).toBe(true);
 		}
 	});
@@ -50,6 +50,46 @@ describe("default-presented providers", () => {
 				signal: new AbortController().signal,
 			});
 			expect(requests).toEqual([{ url: "https://api.viro.app/v1/models", authorization: "Bearer test-key" }]);
+		} finally {
+			globalThis.fetch = originalFetch;
+		}
+	});
+
+	it("greenpt-us discovers the US catalog from the US base URL", async () => {
+		const provider = greenptUsProvider();
+		expect(provider.baseUrl).toBe("https://api.us.greenpt.ai/v1");
+		expect(
+			provider
+				.getModels()
+				.map((model) => model.id)
+				.sort(),
+		).toEqual(["deepseek-v4.1-flash", "glm-5.3", "glm-5.3-flash", "kimi-k3"]);
+
+		const requests: Array<{ url: string; authorization: string | null }> = [];
+		const originalFetch = globalThis.fetch;
+		globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+			const headers = init?.headers as Record<string, string> | undefined;
+			requests.push({ url: String(input), authorization: headers?.authorization ?? null });
+			return new Response(JSON.stringify({ data: [{ id: "glm-5.3" }, { id: "brand-new-us-model" }] }), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			});
+		}) as typeof fetch;
+		try {
+			await provider.refreshModels?.({
+				credential: { type: "api_key", key: "us-key" },
+				publish: async (publication: { update?: () => void }) => {
+					publication.update?.();
+					return true;
+				},
+				allowNetwork: true,
+				signal: new AbortController().signal,
+			});
+			expect(requests).toEqual([{ url: "https://api.us.greenpt.ai/v1/models", authorization: "Bearer us-key" }]);
+			const byId = new Map(provider.getModels().map((model) => [model.id, model]));
+			expect(byId.get("glm-5.3")?.cost.input).toBe(1.1);
+			expect(byId.get("glm-5.3")?.provider).toBe("greenpt-us");
+			expect(byId.get("brand-new-us-model")?.provider).toBe("greenpt-us");
 		} finally {
 			globalThis.fetch = originalFetch;
 		}

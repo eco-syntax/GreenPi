@@ -74,6 +74,7 @@ export type KnownProvider =
 	| "xiaomi-token-plan-ams"
 	| "xiaomi-token-plan-sgp"
 	| "greenpt"
+	| "greenpt-us"
 	| "viro"
 	| "lmstudio"
 	| "ollama"

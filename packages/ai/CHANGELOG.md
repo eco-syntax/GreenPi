@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added GreenPT US region provider `greenpt-us` (`https://api.us.greenpt.ai/v1`) with a curated chat-model subset; shares `GREENPT_API_KEY` with the EU provider.
+
 ## [0.85.1] - 2026-09-05
 
 ### Changed

@@ -17,12 +17,17 @@ These providers are offered by `/login`, `/model`, and first-run setup. All of t
 
 ### GreenPT
 
-European OpenAI-compatible API ([docs.greenpt.ai](https://docs.greenpt.ai)) with a curated catalog (GLM, Kimi, DeepSeek, Qwen, MiniMax, Gemma, GPT-OSS, and GreenPT's own models).
+European OpenAI-compatible API ([docs.greenpt.ai](https://docs.greenpt.ai)) with a curated catalog (GLM, Kimi, DeepSeek, Qwen, MiniMax, Gemma, GPT-OSS, and GreenPT's own models). The model list is refreshed from `GET /models`; the curated table supplies cost and context metadata for known ids.
+
+The base URL selects the region ([regions](https://docs.greenpt.ai/regions)): `greenpt` uses the EU endpoint (`https://api.greenpt.ai/v1`, full catalog) and `greenpt-us` uses the US endpoint (`https://api.us.greenpt.ai/v1`, a subset). Both use `GREENPT_API_KEY`.
 
 ```bash
 export GREENPT_API_KEY=...
 # or: /login greenpt
 pi --provider greenpt --model glm-5.2
+
+# US inference, same API key
+pi --provider greenpt-us --model glm-5.3
 ```
 
 ### Viro AI
@@ -77,6 +82,7 @@ export GREENPT_API_KEY=...
 | Provider | Environment Variable | `auth.json` key |
 |----------|----------------------|------------------|
 | GreenPT | `GREENPT_API_KEY` | `greenpt` |
+| GreenPT (US) | `GREENPT_API_KEY` | `greenpt-us` |
 | Viro AI | `VIRO_API_KEY` | `viro` |
 
 Store credentials in `~/.pi/agent/auth.json`:

@@ -69,6 +69,7 @@ interface ModelRuntimeSnapshot {
  */
 export const DEFAULT_PRESENTED_PROVIDERS: ReadonlySet<string> = new Set([
 	"greenpt",
+	"greenpt-us",
 	"viro",
 	"lmstudio",
 	"ollama",

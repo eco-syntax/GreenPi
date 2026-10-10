@@ -5,8 +5,15 @@ import type { Model, OpenAICompletionsCompat } from "../types.ts";
 import { fetchOpenAICompatibleModels } from "./local.ts";
 
 // OpenAI-compatible API endpoint (https://docs.greenpt.ai). The marketing URL
-// https://greenpt.com/api documents the same service.
+// https://greenpt.com/api documents the same service. The caller's base URL
+// selects the region; nothing in the key or request body does.
+// https://docs.greenpt.ai/regions
 const GREENPT_BASE_URL = "https://api.greenpt.ai/v1";
+const GREENPT_US_BASE_URL = "https://api.us.greenpt.ai/v1";
+
+// Chat-capable models served by the US endpoint; the EU endpoint serves the
+// full catalog.
+const GREENPT_US_CHAT_MODEL_IDS = new Set(["deepseek-v4.1-flash", "glm-5.3", "glm-5.3-flash", "kimi-k3"]);
 
 // Conservative OpenAI-completions compat; GreenPT reasoning models reason on
 // their own, pi sends no reasoning controls.
@@ -69,6 +76,17 @@ const GREENPT_MODELS: GreenPTModelSpec[] = [
 		contextWindow: 1000000,
 		maxTokens: 32768,
 		cost: { input: 0.14, output: 0.35, cacheRead: 0.04 },
+	},
+	{
+		id: "deepseek-v4.1-flash",
+		name: "DeepSeek V4.1 Flash",
+		reasoning: true,
+		vision: true,
+		contextWindow: 1000000,
+		// GreenPT does not publish a max output cap for this model; match the
+		// sibling deepseek-v4-flash-0731 until it does.
+		maxTokens: 32768,
+		cost: { input: 0.22, output: 1.1, cacheRead: 0.011 },
 	},
 	{
 		id: "minimax-m2.5",
@@ -207,13 +225,13 @@ const GREENPT_MODELS: GreenPTModelSpec[] = [
 	},
 ];
 
-function greenptModel(spec: GreenPTModelSpec): Model<"openai-completions"> {
+function greenptModel(providerId: string, baseUrl: string, spec: GreenPTModelSpec): Model<"openai-completions"> {
 	return {
 		id: spec.id,
 		name: spec.name,
 		api: "openai-completions",
-		provider: "greenpt",
-		baseUrl: GREENPT_BASE_URL,
+		provider: providerId,
+		baseUrl,
 		reasoning: spec.reasoning,
 		input: spec.vision ? ["text", "image"] : ["text"],
 		cost: {
@@ -228,27 +246,53 @@ function greenptModel(spec: GreenPTModelSpec): Model<"openai-completions"> {
 	};
 }
 
-export function greenptProvider(): Provider<"openai-completions"> {
+function createGreenptProvider(options: {
+	id: string;
+	name: string;
+	baseUrl: string;
+	staticModels: readonly GreenPTModelSpec[];
+}): Provider<"openai-completions"> {
+	const { id, name, baseUrl, staticModels } = options;
 	return createProvider({
-		id: "greenpt",
-		name: "GreenPT",
-		baseUrl: GREENPT_BASE_URL,
+		id,
+		name,
+		baseUrl,
 		auth: { apiKey: envApiKeyAuth("GreenPT API key", ["GREENPT_API_KEY"]) },
-		models: GREENPT_MODELS.map(greenptModel),
-		// Live catalog (GET /v1/models) merged over the static table: known ids
-		// keep their documented cost/context metadata, new ids come through with
+		models: staticModels.map((spec) => greenptModel(id, baseUrl, spec)),
+		// Live catalog (GET /models) merged over the static table: known ids keep
+		// their documented cost/context metadata, new ids come through with
 		// fetchOpenAICompatibleModels' defaults.
 		fetchModels: async (context) => {
 			const fetched = await fetchOpenAICompatibleModels(
-				"greenpt",
-				GREENPT_BASE_URL,
+				id,
+				baseUrl,
 				context.signal,
 				context.credential?.type === "api_key" ? context.credential.key : undefined,
 			);
 			if (fetched.length === 0) return fetched;
-			const byId = new Map(GREENPT_MODELS.map((spec) => [spec.id, greenptModel(spec)]));
+			const byId = new Map(GREENPT_MODELS.map((spec) => [spec.id, greenptModel(id, baseUrl, spec)]));
 			return fetched.map((model) => byId.get(model.id) ?? model);
 		},
 		api: openAICompletionsApi(),
+	});
+}
+
+/** GreenPT EU (default): https://api.greenpt.ai/v1. */
+export function greenptProvider(): Provider<"openai-completions"> {
+	return createGreenptProvider({
+		id: "greenpt",
+		name: "GreenPT",
+		baseUrl: GREENPT_BASE_URL,
+		staticModels: GREENPT_MODELS,
+	});
+}
+
+/** GreenPT US: https://api.us.greenpt.ai/v1 (EU serves the full catalog). */
+export function greenptUsProvider(): Provider<"openai-completions"> {
+	return createGreenptProvider({
+		id: "greenpt-us",
+		name: "GreenPT (US)",
+		baseUrl: GREENPT_US_BASE_URL,
+		staticModels: GREENPT_MODELS.filter((spec) => GREENPT_US_CHAT_MODEL_IDS.has(spec.id)),
 	});
 }

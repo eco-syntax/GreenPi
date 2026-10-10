@@ -16,7 +16,7 @@ import { fireworksProvider } from "./fireworks.ts";
 import { githubCopilotProvider } from "./github-copilot.ts";
 import { googleProvider } from "./google.ts";
 import { googleVertexProvider } from "./google-vertex.ts";
-import { greenptProvider } from "./greenpt.ts";
+import { greenptProvider, greenptUsProvider } from "./greenpt.ts";
 import { groqProvider } from "./groq.ts";
 import { huggingfaceProvider } from "./huggingface.ts";
 import { kimiCodingProvider } from "./kimi-coding.ts";
@@ -105,6 +105,7 @@ export function builtinProviders(): Provider[] {
 		googleProvider(),
 		googleVertexProvider(),
 		greenptProvider(),
+		greenptUsProvider(),
 		groqProvider(),
 		huggingfaceProvider(),
 		kimiCodingProvider(),
