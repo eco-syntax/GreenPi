@@ -1,5 +1,6 @@
 import { createInterface } from "node:readline/promises";
 import chalk from "chalk";
+import { APP_NAME } from "../config.ts";
 import { AuthStorage } from "../core/auth-storage.ts";
 import { ensureLlamaServer, llamaServerUrl } from "../core/llama-server.ts";
 import type { SettingsManager } from "../core/settings-manager.ts";
@@ -108,7 +109,9 @@ export async function maybeRunLlamaOnboarding(settingsManager: SettingsManager):
 	settingsManager.setLlamaOnboarding("complete");
 
 	if (choice === "skip") {
-		console.log(chalk.dim("Set up a provider later with /login, or run pi with PI_LLAMA_SETUP=1 to see this again."));
+		console.log(
+			chalk.dim(`Set up a provider later with /login, or run ${APP_NAME} with PI_LLAMA_SETUP=1 to see this again.`),
+		);
 		return;
 	}
 	if (choice === "llama") {

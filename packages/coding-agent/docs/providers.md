@@ -72,7 +72,7 @@ Subscription OAuth providers (ChatGPT/Codex, Claude Pro/Max, GitHub Copilot, xAI
 
 ## API Keys and Auth File
 
-API keys are resolved from the credential store (`~/.pi/agent/auth.json`) or environment variables. Store a key via `/login <provider>` or set the env var directly:
+API keys are resolved from the credential store (`~/.greenpi/agent/auth.json`) or environment variables. Store a key via `/login <provider>` or set the env var directly:
 
 ```bash
 export GREENPT_API_KEY=...
@@ -85,7 +85,7 @@ export GREENPT_API_KEY=...
 | GreenPT (US) | `GREENPT_API_KEY` | `greenpt-us` |
 | Viro AI | `VIRO_API_KEY` | `viro` |
 
-Store credentials in `~/.pi/agent/auth.json`:
+Store credentials in `~/.greenpi/agent/auth.json`:
 
 ```json
 {

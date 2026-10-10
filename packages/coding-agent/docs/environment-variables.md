@@ -78,8 +78,8 @@ These variables are read by Pi itself:
 
 | Variable | Description |
 |----------|-------------|
-| `PI_CODING_AGENT_DIR` | Override the config directory; default is `~/.pi/agent` |
-| `PI_CODING_AGENT_SESSION_DIR` | Override session storage; overridden by `--session-dir` |
+| `GREENPI_CODING_AGENT_DIR` | Override the config directory; default is `~/.greenpi/agent` |
+| `GREENPI_CODING_AGENT_SESSION_DIR` | Override session storage; overridden by `--session-dir` |
 | `PI_PACKAGE_DIR` | Override the package directory, useful for Nix/Guix store paths |
 | `PI_SERVER_DIR` | Override the experimental server profile and socket directory; default is `~/.pi/server` |
 | `PI_SERVER_ID` | Select the logical experimental server ID when `--server-id` is omitted |
