@@ -20,6 +20,7 @@
 
 ### Added
 
+- Strata and Unsloth Studio are presented as default local providers with dynamic model discovery (`STRATA_API_KEY` optional, `UNSLOTH_API_KEY` required).
 - First-run provider onboarding: interactive startup offers local llama.cpp (recommended), GreenPT, or Viro AI. Choosing llama.cpp installs a pinned `llama-server` build to `~/.greenpi/agent/llama/bin/`, starts it in router mode on port 8080 (`LLAMA_BASE_URL` overrides), downloads the default model `Colby/apertus-v1.5-8b-text-Q4_K_M-GGUF` from Hugging Face, loads it, and saves it as the startup default. Skippable; `PI_LLAMA_SETUP=0` disables, `PI_LLAMA_SETUP=1` re-runs.
 - Managed llama.cpp server supervision: pi auto-starts `llama-server` (`/health` check, pidfile, `~/.greenpi/agent/llama/server.log`) when the llama.cpp provider is selected at interactive startup, and leaves it running after exit so models stay warm. `PI_LLAMA_AUTOSTART=0` disables; `/llama` now offers **Stop server**. Vulkan builds are installed when a Vulkan driver is detected (macOS always Metal), CPU otherwise.
 - GreenPT US (`greenpt-us`) is presented as a default provider with default model `glm-5.3`; the EU provider keeps `glm-5.2`.

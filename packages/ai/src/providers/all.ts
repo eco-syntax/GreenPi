@@ -1,7 +1,14 @@
 import { type CreateModelsOptions, createModels, type MutableModels, type Provider } from "../models.ts";
 import type { Api, Model } from "../types.ts";
 import { greenptProvider, greenptUsProvider } from "./greenpt.ts";
-import { llamaCppServerProvider, lmStudioProvider, ollamaProvider, vllmProvider } from "./local.ts";
+import {
+	llamaCppServerProvider,
+	lmStudioProvider,
+	ollamaProvider,
+	strataProvider,
+	unslothProvider,
+	vllmProvider,
+} from "./local.ts";
 import { radiusProvider } from "./radius.ts";
 import { viroProvider } from "./viro.ts";
 
@@ -15,6 +22,8 @@ export type BuiltinProvider =
 	| "lmstudio"
 	| "ollama"
 	| "vllm"
+	| "strata"
+	| "unsloth"
 	| "radius";
 
 /** All built-in providers, freshly constructed. GreenPi ships only local
@@ -29,6 +38,8 @@ export function builtinProviders(): Provider[] {
 		lmStudioProvider(),
 		ollamaProvider(),
 		vllmProvider(),
+		strataProvider(),
+		unslothProvider(),
 		radiusProvider(),
 	];
 }

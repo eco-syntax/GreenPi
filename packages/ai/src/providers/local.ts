@@ -138,6 +138,44 @@ export function vllmProvider(): Provider<"openai-completions"> {
 	});
 }
 
+/**
+ * Strata inference engine (https://github.com/Niko1221/Strata).
+ * OpenAI-compatible endpoint on localhost:8080; serves one model
+ * (Qwen3.8-Flash-Next). Any API key works unless the server was started with
+ * an explicit --api-key.
+ */
+export function strataProvider(): Provider<"openai-completions"> {
+	return localProvider({
+		id: "strata",
+		name: "Strata",
+		baseUrl: "http://127.0.0.1:8080/v1",
+		envVars: ["STRATA_API_KEY"],
+	});
+}
+
+/**
+ * Unsloth Studio API (https://unsloth.ai/docs/basics/api) — the llama-server
+ * endpoint Unsloth exposes for its loaded models, used as an LM Studio
+ * replacement. Requires the generated `sk-unsloth-…` key on every request.
+ */
+export function unslothProvider(): Provider<"openai-completions"> {
+	return createProvider({
+		id: "unsloth",
+		name: "Unsloth Studio",
+		baseUrl: "http://localhost:8888/v1",
+		auth: { apiKey: envApiKeyAuth("Unsloth API key", ["UNSLOTH_API_KEY"]) },
+		models: [],
+		fetchModels: async (context) =>
+			await fetchOpenAICompatibleModels(
+				"unsloth",
+				"http://localhost:8888/v1",
+				context.signal,
+				context.credential?.type === "api_key" ? context.credential.key : undefined,
+			),
+		api: openAICompletionsApi(),
+	});
+}
+
 /** llama.cpp `llama-server` OpenAI-compatible endpoint (default port 8080). */
 export function llamaCppServerProvider(): Provider<"openai-completions"> {
 	return localProvider({

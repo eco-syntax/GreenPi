@@ -1,15 +1,39 @@
 import { describe, expect, it } from "vitest";
 import { builtinProviders } from "../src/providers/all.ts";
 import { greenptProvider, greenptUsProvider } from "../src/providers/greenpt.ts";
-import { fetchOpenAICompatibleModels } from "../src/providers/local.ts";
+import { fetchOpenAICompatibleModels, strataProvider, unslothProvider } from "../src/providers/local.ts";
 import { viroProvider } from "../src/providers/viro.ts";
 
 describe("default-presented providers", () => {
 	it("registers GreenPT, Viro, and local inference servers", () => {
 		const ids = new Set(builtinProviders().map((provider) => provider.id));
-		for (const id of ["greenpt", "greenpt-us", "viro", "lmstudio", "ollama", "vllm", "llama-cpp"]) {
+		for (const id of [
+			"greenpt",
+			"greenpt-us",
+			"viro",
+			"lmstudio",
+			"ollama",
+			"vllm",
+			"llama-cpp",
+			"strata",
+			"unsloth",
+		]) {
 			expect(ids.has(id)).toBe(true);
 		}
+	});
+
+	it("strata points at the local Strata endpoint with optional key auth", () => {
+		const provider = strataProvider();
+		expect(provider.id).toBe("strata");
+		expect(provider.baseUrl).toBe("http://127.0.0.1:8080/v1");
+		expect(provider.getModels()).toEqual([]);
+	});
+
+	it("unsloth points at port 8888 and requires an API key", () => {
+		const provider = unslothProvider();
+		expect(provider.id).toBe("unsloth");
+		expect(provider.baseUrl).toBe("http://localhost:8888/v1");
+		expect(provider.getModels()).toEqual([]);
 	});
 
 	it("greenpt catalog has unique ids pointing at the GreenPT endpoint", () => {

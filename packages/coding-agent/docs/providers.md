@@ -46,29 +46,26 @@ On first interactive startup, pi offers to set up llama.cpp as the default local
 
 LM Studio, Ollama, vLLM, and a bring-your-own llama.cpp server run locally and need no API key (optional env vars are supported). Pi discovers their models from the OpenAI-compatible `GET /models` endpoint at startup.
 
-| Provider | Default endpoint | Optional key env var |
-|----------|------------------|----------------------|
-| LM Studio | `http://localhost:1234/v1` | `LMSTUDIO_API_KEY` |
-| Ollama | `http://localhost:11434/v1` | `OLLAMA_API_KEY` |
-| vLLM | `http://localhost:8000/v1` | `VLLM_API_KEY` |
-| llama.cpp server | `http://localhost:8080/v1` | `LLAMA_CPP_API_KEY` |
+| Provider | Default endpoint | Key env var |
+|----------|------------------|-------------|
+| LM Studio | `http://localhost:1234/v1` | `LMSTUDIO_API_KEY` (optional) |
+| Ollama | `http://localhost:11434/v1` | `OLLAMA_API_KEY` (optional) |
+| vLLM | `http://localhost:8000/v1` | `VLLM_API_KEY` (optional) |
+| llama.cpp server | `http://localhost:8080/v1` | `LLAMA_CPP_API_KEY` (optional) |
+| [Strata](https://github.com/Niko1221/Strata) | `http://127.0.0.1:8080/v1` | `STRATA_API_KEY` (optional) |
+| [Unsloth Studio](https://unsloth.ai/docs/basics/api) | `http://localhost:8888/v1` | `UNSLOTH_API_KEY` (**required** — the generated `sk-unsloth-…` key) |
 
 Start the server, then:
 
 ```bash
-pi --provider lmstudio      # or ollama / vllm / llama-cpp
+greenpi --provider lmstudio      # or ollama / vllm / llama-cpp / strata / unsloth
 ```
 
 Discovered models assume a 128k context window and 8k output; override per model with `models.json` `modelOverrides` (see [models.md](models.md)).
 
-## Other Built-in Providers
+## Other Endpoints (models.json)
 
-The provider catalog also contains cloud API-key and subscription providers (Anthropic, OpenAI, Google, Amazon Bedrock, Groq, xAI, OpenRouter, and many more). They are not registered by pi's default runtime, but remain available:
-
-- **Via `models.json`:** declare the provider as a custom provider with its `baseUrl` and API (see [models.md](models.md)). Environment variables and `auth.json` keys are listed in [`packages/ai/src/env-api-keys.ts`](../../ai/src/env-api-keys.ts).
-- **Via the SDK:** `ModelRuntime.create({ allBuiltinProviders: true })` registers the full catalog.
-
-Subscription OAuth providers (ChatGPT/Codex, Claude Pro/Max, GitHub Copilot, xAI, OpenRouter, Radius) are not offered by `/login` in the default runtime.
+GreenPi ships no mainstream cloud providers. To point GreenPi at any other OpenAI-compatible (or Anthropic/Responses-speaking) endpoint, declare it via `models.json` with its `baseUrl`, API dialect, API key, and models (see [models.md](models.md)). The wire protocols (`openai-completions`, `anthropic-messages`, `openai-responses`, `google-generative-ai`, `bedrock-converse-stream`) are bundled for this purpose.
 
 ## API Keys and Auth File
 

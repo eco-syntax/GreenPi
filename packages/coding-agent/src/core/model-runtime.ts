@@ -74,6 +74,8 @@ export const DEFAULT_PRESENTED_PROVIDERS: ReadonlySet<string> = new Set([
 	"ollama",
 	"vllm",
 	"llama-cpp",
+	"strata",
+	"unsloth",
 ]);
 
 export interface CreateModelRuntimeOptions {

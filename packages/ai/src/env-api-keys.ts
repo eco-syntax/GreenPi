@@ -79,6 +79,8 @@ function getApiKeyEnvVars(provider: string): readonly string[] | undefined {
 	const envMap: Record<string, string> = {
 		"greenpt-us": "GREENPT_API_KEY",
 		"llama-cpp": "LLAMA_CPP_API_KEY",
+		strata: "STRATA_API_KEY",
+		unsloth: "UNSLOTH_API_KEY",
 	};
 
 	const envVar = envMap[provider];
