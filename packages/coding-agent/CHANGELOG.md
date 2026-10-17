@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- Updated undici to 8.12.2: fixes a remote process-crash DoS through `fetch` (GHSA-xjj6-f33q-929c) reachable from every provider request, plus TLS renegotiation crashes, a WebSocket PONG buffering DoS, and related advisories.
 - Fixed `--provider` without `--model` being silently ignored and running the default model from another provider; it now fails with an error ([#10236](https://github.com/earendil-works/pi/issues/10236)).
 
 ### Changed

@@ -151,7 +151,7 @@ function getInternalWorkspaces(lockPackages) {
 	return workspaces;
 }
 
-function resolveExternalDependency(lockPackages, packageName, fromLockPath) {
+function resolveExternalDependency(lockPackages, packageName, fromLockPath, requestedRange) {
 	const candidateDirs = [];
 	let current = fromLockPath;
 
@@ -181,16 +181,25 @@ function resolveExternalDependency(lockPackages, packageName, fromLockPath) {
 
 	const suffix = `node_modules/${packageName}`;
 	const matches = Object.entries(lockPackages)
-		.filter(([lockPath, entry]) => !entry.link && (lockPath === suffix || lockPath.endsWith(`/${suffix}`)))
-		.map(([lockPath]) => lockPath);
+		.filter(([lockPath, entry]) => !entry.link && (lockPath === suffix || lockPath.endsWith(`/${suffix}`)));
 
 	if (matches.length === 1) {
-		return matches[0];
+		return matches[0][0];
+	}
+
+	// npm can re-home a bumped dependency into the requesting workspace's own
+	// node_modules, leaving several node_modules/<name> entries in the lockfile.
+	// Disambiguate with the version the requesting package declares.
+	if (requestedRange !== undefined) {
+		const pinned = matches.filter(([, entry]) => entry.version === requestedRange);
+		if (pinned.length === 1) {
+			return pinned[0][0];
+		}
 	}
 
 	throw new Error(
 		`Cannot resolve ${packageName} from ${fromLockPath || "root"}. ` +
-			(matches.length > 1 ? `Matches: ${matches.join(", ")}` : "No matching lockfile entry found."),
+			(matches.length > 1 ? `Matches: ${matches.map(([lockPath]) => lockPath).join(", ")}` : "No matching lockfile entry found."),
 	);
 }
 
@@ -203,13 +212,14 @@ function addInternalWorkspace(shrinkwrapPackages, addedPaths, queue, name, works
 	shrinkwrapPackages[outputPath] = sortedPackageEntry(entry);
 	addedPaths.add(outputPath);
 
-	for (const dependencyName of Object.keys(packageDependencies(packageJson))) {
-		queue.push({ name: dependencyName, from: outputPath });
+	const dependencies = packageDependencies(packageJson);
+	for (const [dependencyName, range] of Object.entries(dependencies)) {
+		queue.push({ name: dependencyName, from: outputPath, range });
 	}
 }
 
-function addExternalPackage(lockPackages, shrinkwrapPackages, addedPaths, queue, name, from) {
-	const lockPath = resolveExternalDependency(lockPackages, name, from);
+function addExternalPackage(lockPackages, shrinkwrapPackages, addedPaths, queue, name, from, range) {
+	const lockPath = resolveExternalDependency(lockPackages, name, from, range);
 	if (addedPaths.has(lockPath)) {
 		return;
 	}
@@ -218,8 +228,9 @@ function addExternalPackage(lockPackages, shrinkwrapPackages, addedPaths, queue,
 	shrinkwrapPackages[lockPath] = copyLockEntry(entry);
 	addedPaths.add(lockPath);
 
-	for (const dependencyName of Object.keys(packageDependencies(entry))) {
-		queue.push({ name: dependencyName, from: lockPath });
+	const dependencies = packageDependencies(entry);
+	for (const [dependencyName, dependencyRange] of Object.entries(dependencies)) {
+		queue.push({ name: dependencyName, from: lockPath, range: dependencyRange });
 	}
 }
 
@@ -303,7 +314,7 @@ function generateShrinkwrap() {
 	};
 	const addedPaths = new Set([""]);
 	const internalNames = new Set();
-	const queue = Object.keys(packageDependencies(codingAgentPackage)).map((name) => ({ name, from: "" }));
+	const queue = Object.entries(packageDependencies(codingAgentPackage)).map(([name, range]) => ({ name, from: "", range }));
 
 	while (queue.length > 0) {
 		const item = queue.shift();
@@ -321,7 +332,7 @@ function generateShrinkwrap() {
 			continue;
 		}
 
-		addExternalPackage(lockPackages, shrinkwrapPackages, addedPaths, queue, item.name, item.from);
+		addExternalPackage(lockPackages, shrinkwrapPackages, addedPaths, queue, item.name, item.from, item.range);
 	}
 
 	const shrinkwrap = {
