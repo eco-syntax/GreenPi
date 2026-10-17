@@ -147,7 +147,6 @@ for (const entry of [
 	join(codingAgentDistDir, "rpc-entry.js"),
 	join(codingAgentDistDir, "utils", "image-resize-worker.js"),
 	join(aiDistDir, "api", "bedrock-converse-stream.js"),
-	join(aiDistDir, "auth", "oauth", "anthropic.js"),
 ]) {
 	if (!existsSync(entry)) {
 		throw new Error(`Bundle input is missing: ${relative(repoRoot, entry)}. Build the workspace packages first.`);
@@ -188,8 +187,6 @@ const lazyResult = await build({
 		anthropic: join(aiDistDir, "auth", "oauth", "anthropic.js"),
 		"bedrock-converse-stream": join(aiDistDir, "api", "bedrock-converse-stream.js"),
 		"image-resize-worker": join(codingAgentDistDir, "utils", "image-resize-worker.js"),
-		"kimi-coding": join(aiDistDir, "auth", "oauth", "kimi-coding.js"),
-		"openai-codex": join(aiDistDir, "auth", "oauth", "openai-codex.js"),
 		openrouter: join(aiDistDir, "auth", "oauth", "openrouter.js"),
 		radius: join(aiDistDir, "auth", "oauth", "radius.js"),
 		xai: join(aiDistDir, "auth", "oauth", "xai.js"),
