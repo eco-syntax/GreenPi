@@ -1,7 +1,8 @@
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
-import { getModel, stream } from "../src/compat.ts";
+import { stream } from "../src/compat.ts";
 import type { Context, Tool } from "../src/types.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 import { resolveApiKey } from "./oauth.ts";
 
 const oauthToken = await resolveApiKey("anthropic");
@@ -23,7 +24,7 @@ const oauthToken = await resolveApiKey("anthropic");
  * - Result: tool call has name "Glob" but no tool exists with that name
  */
 describe.skipIf(!oauthToken)("Anthropic OAuth tool name normalization", () => {
-	const model = getModel("anthropic", "claude-sonnet-4-6");
+	const model = GENERATED_CATALOG.anthropic["claude-sonnet-4-6"];
 
 	it("should normalize user-defined tool matching CC name (todowrite -> TodoWrite -> todowrite)", async () => {
 		// User defines a tool named "todowrite" (lowercase)

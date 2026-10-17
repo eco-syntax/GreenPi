@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { getModel, streamSimple } from "../src/compat.ts";
+import { streamSimple } from "../src/compat.ts";
 import type { AssistantMessage, Context, Model } from "../src/types.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 
 interface AnthropicPayload {
 	messages?: Array<{
@@ -98,8 +99,8 @@ describe("Anthropic empty thinking signature compat", () => {
 	});
 
 	it.each(["k3"] as const)("allows empty signatures for Kimi Coding %s", async (modelId) => {
-		const model = getModel("kimi-coding", modelId);
-		expect(model.compat?.allowEmptySignature).toBe(true);
+		const model = GENERATED_CATALOG["kimi-coding"][modelId];
+		expect((model.compat as Record<string, unknown> | undefined)?.allowEmptySignature).toBe(true);
 
 		const payload = await capturePayload(model, makeContext(" ", "internal reasoning", "kimi-coding", modelId));
 		const assistant = payload.messages?.find((message) => message.role === "assistant");

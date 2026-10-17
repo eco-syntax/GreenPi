@@ -2,8 +2,8 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
 import { stream as streamAnthropic } from "../src/api/anthropic-messages.ts";
-import { getModel } from "../src/compat.ts";
 import type { Context, ToolCall } from "../src/types.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 
 function createSseResponse(events: Array<{ event: string; data: string }>): Response {
 	const body = events.map(({ event, data }) => `event: ${event}\ndata: ${data}\n`).join("\n");
@@ -82,7 +82,7 @@ function createFakeAnthropicClient(response: Response): Anthropic {
 
 describe("Anthropic raw SSE parsing", () => {
 	it("fails safely when Anthropic falls back after output begins", async () => {
-		const model = getModel("anthropic", "claude-opus-5");
+		const model = GENERATED_CATALOG.anthropic["claude-opus-5"];
 		const response = createSseResponse([
 			{
 				event: "message_start",
@@ -142,7 +142,7 @@ describe("Anthropic raw SSE parsing", () => {
 		} as unknown as Anthropic;
 
 		await streamAnthropic(
-			getModel("anthropic", "claude-fable-5-1"),
+			GENERATED_CATALOG.anthropic["claude-fable-5-1"],
 			{ messages: [{ role: "user", content: "Hello", timestamp: 1 }] },
 			{
 				client,
@@ -167,7 +167,7 @@ describe("Anthropic raw SSE parsing", () => {
 		} as unknown as Anthropic;
 
 		await streamAnthropic(
-			getModel("openrouter", "anthropic/claude-3-haiku"),
+			GENERATED_CATALOG.openrouter["anthropic/claude-3-haiku"],
 			{ messages: [{ role: "user", content: "Hello", timestamp: 1 }] },
 			{ client, thinkingEnabled: false },
 		).result();
@@ -189,7 +189,7 @@ describe("Anthropic raw SSE parsing", () => {
 		} as unknown as Anthropic;
 
 		const result = await streamAnthropic(
-			getModel("anthropic", "claude-fable-5-1"),
+			GENERATED_CATALOG.anthropic["claude-fable-5-1"],
 			{ messages: [{ role: "user", content: "Hello", timestamp: 1 }] },
 			{ client },
 		).result();
@@ -219,7 +219,7 @@ describe("Anthropic raw SSE parsing", () => {
 		events[4].data = JSON.stringify(delta);
 
 		const result = await streamAnthropic(
-			getModel("anthropic", "claude-fable-5-1"),
+			GENERATED_CATALOG.anthropic["claude-fable-5-1"],
 			{ messages: [{ role: "user", content: "Hello", timestamp: 1 }] },
 			{ client: createFakeAnthropicClient(createSseResponse(events)) },
 		).result();
@@ -241,7 +241,7 @@ describe("Anthropic raw SSE parsing", () => {
 		]);
 	});
 	it("repairs malformed SSE JSON and malformed streamed tool JSON", async () => {
-		const model = getModel("anthropic", "claude-haiku-4-5");
+		const model = GENERATED_CATALOG.anthropic["claude-haiku-4-5"];
 		const context: Context = {
 			messages: [{ role: "user", content: "Use the edit tool.", timestamp: Date.now() }],
 			tools: [
@@ -328,7 +328,7 @@ describe("Anthropic raw SSE parsing", () => {
 	});
 
 	it("preserves content from content_block_start events", async () => {
-		const model = getModel("anthropic", "claude-haiku-4-5");
+		const model = GENERATED_CATALOG.anthropic["claude-haiku-4-5"];
 		const context: Context = {
 			messages: [{ role: "user", content: "Say hello.", timestamp: Date.now() }],
 		};
@@ -426,7 +426,7 @@ describe("Anthropic raw SSE parsing", () => {
 	});
 
 	it("preserves refusal stop details from message_delta", async () => {
-		const model = getModel("anthropic", "claude-fable-5");
+		const model = GENERATED_CATALOG.anthropic["claude-fable-5"];
 		const context: Context = {
 			messages: [{ role: "user", content: "blocked request", timestamp: Date.now() }],
 		};
@@ -485,7 +485,7 @@ describe("Anthropic raw SSE parsing", () => {
 	});
 
 	it("preserves sensitive stop reasons with a descriptive error message", async () => {
-		const model = getModel("anthropic", "claude-haiku-4-5");
+		const model = GENERATED_CATALOG.anthropic["claude-haiku-4-5"];
 		const context: Context = {
 			messages: [{ role: "user", content: "blocked request", timestamp: Date.now() }],
 		};
@@ -535,7 +535,7 @@ describe("Anthropic raw SSE parsing", () => {
 	});
 
 	it("treats message_delta without usage as a no-op for usage accumulation", async () => {
-		const model = getModel("anthropic", "claude-haiku-4-5");
+		const model = GENERATED_CATALOG.anthropic["claude-haiku-4-5"];
 		const context: Context = {
 			messages: [{ role: "user", content: "Say hello.", timestamp: Date.now() }],
 		};
@@ -563,7 +563,7 @@ describe("Anthropic raw SSE parsing", () => {
 	});
 
 	it("ignores unknown SSE events after message_stop", async () => {
-		const model = getModel("anthropic", "claude-haiku-4-5");
+		const model = GENERATED_CATALOG.anthropic["claude-haiku-4-5"];
 		const context: Context = {
 			messages: [{ role: "user", content: "Say hello.", timestamp: Date.now() }],
 		};

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Removed the built-in mainstream provider catalog layer entirely (see packages/ai changelog). Declaring a mainstream endpoint via models.json still works; built-in registration and their OAuth sign-ins are gone.
+
 ### Fixed
 
 - Updated undici to 8.12.2: fixes a remote process-crash DoS through `fetch` (GHSA-xjj6-f33q-929c) reachable from every provider request, plus TLS renegotiation crashes, a WebSocket PONG buffering DoS, and related advisories.

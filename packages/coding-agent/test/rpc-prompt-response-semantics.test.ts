@@ -6,10 +6,10 @@ import {
 	type AssistantMessage,
 	type AssistantMessageEvent,
 	EventStream,
-	getModel,
 	type Model,
 } from "@earendil-works/pi-ai/compat";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { GENERATED_CATALOG } from "../../ai/test/fixtures/generated-catalog.ts";
 import { AgentSession } from "../src/core/agent-session.ts";
 import type { AgentSessionRuntime } from "../src/core/agent-session-runtime.ts";
 import { AuthStorage } from "../src/core/auth-storage.ts";
@@ -102,7 +102,7 @@ async function createRuntimeHost(options: { withAuth: boolean; responseDelayMs: 
 	const tempDir = join(tmpdir(), `pi-rpc-prompt-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 	mkdirSync(tempDir, { recursive: true });
 
-	const model = options.model ?? getModel("anthropic", "claude-sonnet-4-5");
+	const model = options.model ?? GENERATED_CATALOG.anthropic["claude-sonnet-4-5"];
 	if (!model) {
 		throw new Error("Test model not found");
 	}

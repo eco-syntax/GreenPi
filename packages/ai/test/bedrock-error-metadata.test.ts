@@ -49,9 +49,9 @@ vi.mock("@aws-sdk/client-bedrock-runtime", () => {
 });
 
 import { stream as streamBedrock } from "../src/api/bedrock-converse-stream.ts";
-import { getModel } from "../src/compat.ts";
 import type { AssistantMessage, Context, Model } from "../src/types.ts";
 import type { AssistantMessageDiagnostic } from "../src/utils/diagnostics.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 
 const DIAGNOSTIC_TYPE = "bedrock_response_failure";
 const VALIDATION_MESSAGE = "The provided model identifier is invalid.";
@@ -62,7 +62,7 @@ const context: Context = {
 };
 
 function getModelFixture(): Model<"bedrock-converse-stream"> {
-	return getModel("amazon-bedrock", "us.anthropic.claude-opus-4-8");
+	return GENERATED_CATALOG["amazon-bedrock"]["us.anthropic.claude-opus-4-8"];
 }
 
 /** What the SDK's `handleError` path throws for a non-2xx response; `name` is the modeled AWS error code. */

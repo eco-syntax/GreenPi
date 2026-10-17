@@ -2,9 +2,9 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { AssistantMessage, ToolResultMessage } from "@earendil-works/pi-ai/compat";
-import { getModel } from "@earendil-works/pi-ai/compat";
 import { Type } from "typebox";
 import { afterEach, describe, expect, it } from "vitest";
+import { GENERATED_CATALOG } from "../../ai/test/fixtures/generated-catalog.ts";
 import { defineTool } from "../src/core/extensions/types.ts";
 import { createAgentSession } from "../src/core/sdk.ts";
 import { SessionManager } from "../src/core/session-manager.ts";
@@ -28,7 +28,7 @@ describe("JSONL share export", () => {
 		const { session } = await createAgentSession({
 			cwd: tempDir,
 			agentDir: join(tempDir, "agent"),
-			model: getModel("anthropic", "claude-sonnet-4-5")!,
+			model: GENERATED_CATALOG.anthropic["claude-sonnet-4-5"]!,
 			settingsManager: SettingsManager.inMemory(),
 			sessionManager,
 			tools: ["share_tool"],

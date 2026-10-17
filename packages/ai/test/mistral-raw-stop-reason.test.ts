@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { stream as streamMistral } from "../src/api/mistral-conversations.ts";
-import { getModel } from "../src/compat.ts";
 import type { Context, FetchFunction } from "../src/types.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 
-const model = getModel("mistral", "devstral-medium-latest");
+const model = GENERATED_CATALOG.mistral["devstral-medium-latest"];
 const context: Context = {
 	messages: [{ role: "user", content: "hello", timestamp: Date.now() }],
 };

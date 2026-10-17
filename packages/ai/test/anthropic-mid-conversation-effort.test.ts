@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { stream } from "../src/api/anthropic-messages.ts";
-import { getModel } from "../src/compat.ts";
 import type { AssistantMessage, Context, Model } from "../src/types.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 
 interface WireMessage {
 	role: string;
@@ -198,15 +198,15 @@ describe("Anthropic mid-conversation effort", () => {
 	});
 
 	it("generates exact model and transport gates", () => {
-		const direct = getModel("anthropic", "claude-fable-5-1");
-		const openRouter = getModel("openrouter", "anthropic/claude-fable-5.1");
-		const unsupported = getModel("anthropic", "claude-opus-4-8");
+		const direct = GENERATED_CATALOG.anthropic["claude-fable-5-1"];
+		const openRouter = GENERATED_CATALOG.openrouter["anthropic/claude-fable-5.1"];
+		const unsupported = GENERATED_CATALOG.anthropic["claude-opus-4-8"];
 		expect(direct.compat?.supportsMidConvoEffort).toBe(true);
 		expect(direct.thinkingLevelMap?.off).toBeNull();
 		expect(openRouter.api).toBe("anthropic-messages");
 		expect(openRouter.baseUrl).toBe("https://openrouter.ai/api");
 		expect(openRouter.compat?.supportsMidConvoEffort).toBe(true);
 		expect(unsupported.compat?.supportsMidConvoEffort).toBeUndefined();
-		expect(getModel("anthropic", "claude-opus-5").compat?.allowedFallbackModels).toBeUndefined();
+		expect(GENERATED_CATALOG.anthropic["claude-opus-5"].compat?.allowedFallbackModels).toBeUndefined();
 	});
 });

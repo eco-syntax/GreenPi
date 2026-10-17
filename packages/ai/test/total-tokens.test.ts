@@ -13,7 +13,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { complete, getModel } from "../src/compat.ts";
+import { complete } from "../src/compat.ts";
 import type { Api, Context, Model, StreamOptions, Usage } from "../src/types.ts";
 
 type StreamOptionsWithExtras = StreamOptions & Record<string, unknown>;
@@ -21,6 +21,7 @@ type StreamOptionsWithExtras = StreamOptions & Record<string, unknown>;
 import { hasAzureOpenAICredentials, resolveAzureDeploymentName } from "./azure-utils.ts";
 import { hasBedrockCredentials } from "./bedrock-utils.ts";
 import { hasCloudflareAiGatewayCredentials, hasCloudflareWorkersAICredentials } from "./cloudflare-utils.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 import { resolveApiKey } from "./oauth.ts";
 
 // Resolve OAuth tokens at module level (async, runs before tests)
@@ -107,7 +108,7 @@ describe("totalTokens field", () => {
 			"claude-sonnet-4-5 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("anthropic", "claude-sonnet-4-5");
+				const llm = GENERATED_CATALOG.anthropic["claude-sonnet-4-5"];
 
 				console.log(`\nAnthropic / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.ANTHROPIC_API_KEY });
@@ -130,7 +131,7 @@ describe("totalTokens field", () => {
 			"claude-sonnet-4 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("anthropic", "claude-sonnet-4-6");
+				const llm = GENERATED_CATALOG.anthropic["claude-sonnet-4-6"];
 
 				console.log(`\nAnthropic OAuth / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: anthropicOAuthToken });
@@ -157,7 +158,7 @@ describe("totalTokens field", () => {
 			"gpt-4o-mini - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const { compat: _compat, ...baseModel } = getModel("openai", "gpt-4o-mini")!;
+				const { compat: _compat, ...baseModel } = GENERATED_CATALOG.openai["gpt-4o-mini"]!;
 				void _compat;
 				const llm: Model<"openai-completions"> = {
 					...baseModel,
@@ -181,7 +182,7 @@ describe("totalTokens field", () => {
 			"claude-haiku-4.5 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("openai", "gpt-4o");
+				const llm = GENERATED_CATALOG.openai["gpt-4o"];
 
 				console.log(`\nOpenAI Responses / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm);
@@ -200,7 +201,7 @@ describe("totalTokens field", () => {
 			"gpt-4o-mini - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("azure-openai-responses", "gpt-4o-mini");
+				const llm = GENERATED_CATALOG["azure-openai-responses"]["gpt-4o-mini"];
 				const azureDeploymentName = resolveAzureDeploymentName(llm.id);
 				const azureOptions = azureDeploymentName ? { azureDeploymentName } : {};
 
@@ -225,7 +226,7 @@ describe("totalTokens field", () => {
 			"gemini-2.5-flash - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("google", "gemini-2.5-flash");
+				const llm = GENERATED_CATALOG.google["gemini-2.5-flash"];
 
 				console.log(`\nGoogle / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm);
@@ -245,7 +246,7 @@ describe("totalTokens field", () => {
 
 	describe.skipIf(!process.env.XAI_API_KEY)("xAI", () => {
 		it("grok-4.3 - should return totalTokens equal to sum of components", { retry: 3, timeout: 60000 }, async () => {
-			const llm = getModel("xai", "grok-4.3");
+			const llm = GENERATED_CATALOG.xai["grok-4.3"];
 
 			console.log(`\nxAI / ${llm.id}:`);
 			const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.XAI_API_KEY });
@@ -267,7 +268,7 @@ describe("totalTokens field", () => {
 			"openai/gpt-oss-120b - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("groq", "openai/gpt-oss-120b");
+				const llm = GENERATED_CATALOG.groq["openai/gpt-oss-120b"];
 
 				console.log(`\nGroq / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.GROQ_API_KEY });
@@ -290,7 +291,7 @@ describe("totalTokens field", () => {
 			"gpt-oss-120b - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("cerebras", "gpt-oss-120b");
+				const llm = GENERATED_CATALOG.cerebras["gpt-oss-120b"];
 
 				console.log(`\nCerebras / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.CEREBRAS_API_KEY });
@@ -313,7 +314,7 @@ describe("totalTokens field", () => {
 			"@cf/moonshotai/kimi-k2.6 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("cloudflare-workers-ai", "@cf/moonshotai/kimi-k2.6");
+				const llm = GENERATED_CATALOG["cloudflare-workers-ai"]["@cf/moonshotai/kimi-k2.6"];
 
 				console.log(`\nCloudflare Workers AI / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, {
@@ -338,7 +339,7 @@ describe("totalTokens field", () => {
 			"workers-ai/@cf/moonshotai/kimi-k2.6 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("cloudflare-ai-gateway", "workers-ai/@cf/moonshotai/kimi-k2.6");
+				const llm = GENERATED_CATALOG["cloudflare-ai-gateway"]["workers-ai/@cf/moonshotai/kimi-k2.6"];
 
 				console.log(`\nCloudflare AI Gateway / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, {
@@ -360,7 +361,7 @@ describe("totalTokens field", () => {
 
 	describe.skipIf(!process.env.HF_TOKEN)("Hugging Face", () => {
 		it("Kimi-K2.5 - should return totalTokens equal to sum of components", { retry: 3, timeout: 60000 }, async () => {
-			const llm = getModel("huggingface", "moonshotai/Kimi-K2.5");
+			const llm = GENERATED_CATALOG.huggingface["moonshotai/Kimi-K2.5"];
 
 			console.log(`\nHugging Face / ${llm.id}:`);
 			const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.HF_TOKEN });
@@ -379,7 +380,7 @@ describe("totalTokens field", () => {
 
 	describe.skipIf(!process.env.TOGETHER_API_KEY)("Together AI", () => {
 		it("Kimi-K2.6 - should return totalTokens equal to sum of components", { retry: 3, timeout: 60000 }, async () => {
-			const llm = getModel("together", "moonshotai/Kimi-K2.6");
+			const llm = GENERATED_CATALOG.together["moonshotai/Kimi-K2.6"];
 
 			console.log(`\nTogether AI / ${llm.id}:`);
 			const { first, second } = await testTotalTokensWithCache(llm, {
@@ -401,7 +402,7 @@ describe("totalTokens field", () => {
 
 	describe.skipIf(!process.env.BASETEN_API_KEY)("Baseten", () => {
 		it("GLM 5.2 - should return totalTokens equal to sum of components", { retry: 3, timeout: 60000 }, async () => {
-			const llm = getModel("baseten", "zai-org/GLM-5.2");
+			const llm = GENERATED_CATALOG.baseten["zai-org/GLM-5.2"];
 
 			console.log(`\nBaseten / ${llm.id}:`);
 			const { first, second } = await testTotalTokensWithCache(llm, {
@@ -423,7 +424,7 @@ describe("totalTokens field", () => {
 
 	describe.skipIf(!process.env.ZAI_API_KEY)("z.ai", () => {
 		it("glm-5.2 - should return totalTokens equal to sum of components", { retry: 3, timeout: 60000 }, async () => {
-			const llm = getModel("zai", "glm-5.2");
+			const llm = GENERATED_CATALOG.zai["glm-5.2"];
 
 			console.log(`\nz.ai / ${llm.id}:`);
 			const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.ZAI_API_KEY });
@@ -445,7 +446,7 @@ describe("totalTokens field", () => {
 			"devstral-medium-latest - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("mistral", "devstral-medium-latest");
+				const llm = GENERATED_CATALOG.mistral["devstral-medium-latest"];
 
 				console.log(`\nMistral / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.MISTRAL_API_KEY });
@@ -468,7 +469,7 @@ describe("totalTokens field", () => {
 			"MiniMax-M2.7 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("minimax", "MiniMax-M2.7");
+				const llm = GENERATED_CATALOG.minimax["MiniMax-M2.7"];
 
 				console.log(`\nMiniMax / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.MINIMAX_API_KEY });
@@ -491,7 +492,7 @@ describe("totalTokens field", () => {
 			"mimo-v2.5-pro - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("xiaomi", "mimo-v2.5-pro");
+				const llm = GENERATED_CATALOG.xiaomi["mimo-v2.5-pro"];
 
 				console.log(`\nXiaomi MiMo / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.XIAOMI_API_KEY });
@@ -514,7 +515,7 @@ describe("totalTokens field", () => {
 			"mimo-v2.5-pro - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("xiaomi-token-plan-cn", "mimo-v2.5-pro");
+				const llm = GENERATED_CATALOG["xiaomi-token-plan-cn"]["mimo-v2.5-pro"];
 
 				console.log(`\nXiaomi MiMo Token Plan CN / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, {
@@ -539,7 +540,7 @@ describe("totalTokens field", () => {
 			"mimo-v2.5-pro - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("xiaomi-token-plan-ams", "mimo-v2.5-pro");
+				const llm = GENERATED_CATALOG["xiaomi-token-plan-ams"]["mimo-v2.5-pro"];
 
 				console.log(`\nXiaomi MiMo Token Plan AMS / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, {
@@ -564,7 +565,7 @@ describe("totalTokens field", () => {
 			"mimo-v2.5-pro - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("xiaomi-token-plan-sgp", "mimo-v2.5-pro");
+				const llm = GENERATED_CATALOG["xiaomi-token-plan-sgp"]["mimo-v2.5-pro"];
 
 				console.log(`\nXiaomi MiMo Token Plan SGP / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, {
@@ -589,7 +590,7 @@ describe("totalTokens field", () => {
 			"qwen3.7-max - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("qwen-token-plan", "qwen3.7-max");
+				const llm = GENERATED_CATALOG["qwen-token-plan"]["qwen3.7-max"];
 
 				console.log(`\nQwen Token Plan / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, {
@@ -614,7 +615,7 @@ describe("totalTokens field", () => {
 			"qwen3.8-max - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("qwen-token-plan-individual", "qwen3.8-max");
+				const llm = GENERATED_CATALOG["qwen-token-plan-individual"]["qwen3.8-max"];
 
 				console.log(`\nQwen Token Plan Individual / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, {
@@ -639,7 +640,7 @@ describe("totalTokens field", () => {
 			"qwen3.7-max - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("qwen-token-plan-cn", "qwen3.7-max");
+				const llm = GENERATED_CATALOG["qwen-token-plan-cn"]["qwen3.7-max"];
 
 				console.log(`\nQwen Token Plan CN / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, {
@@ -664,7 +665,7 @@ describe("totalTokens field", () => {
 			"kimi-for-coding - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("kimi-coding", "kimi-for-coding");
+				const llm = GENERATED_CATALOG["kimi-coding"]["kimi-for-coding"];
 
 				console.log(`\nKimi For Coding / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.KIMI_API_KEY });
@@ -687,7 +688,7 @@ describe("totalTokens field", () => {
 			"google/gemini-2.5-flash - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("vercel-ai-gateway", "google/gemini-2.5-flash");
+				const llm = GENERATED_CATALOG["vercel-ai-gateway"]["google/gemini-2.5-flash"];
 
 				console.log(`\nVercel AI Gateway / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.AI_GATEWAY_API_KEY });
@@ -710,7 +711,7 @@ describe("totalTokens field", () => {
 			"anthropic/claude-sonnet-4 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("openrouter", "anthropic/claude-sonnet-4");
+				const llm = GENERATED_CATALOG.openrouter["anthropic/claude-sonnet-4"];
 
 				console.log(`\nOpenRouter / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.OPENROUTER_API_KEY });
@@ -727,7 +728,7 @@ describe("totalTokens field", () => {
 			"deepseek/deepseek-chat - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("openrouter", "deepseek/deepseek-chat");
+				const llm = GENERATED_CATALOG.openrouter["deepseek/deepseek-chat"];
 
 				console.log(`\nOpenRouter / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.OPENROUTER_API_KEY });
@@ -744,7 +745,7 @@ describe("totalTokens field", () => {
 			"mistralai/mistral-small-3.2-24b-instruct - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("openrouter", "mistralai/mistral-small-3.2-24b-instruct");
+				const llm = GENERATED_CATALOG.openrouter["mistralai/mistral-small-3.2-24b-instruct"];
 
 				console.log(`\nOpenRouter / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.OPENROUTER_API_KEY });
@@ -761,7 +762,7 @@ describe("totalTokens field", () => {
 			"google/gemini-2.5-flash - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("openrouter", "google/gemini-2.5-flash");
+				const llm = GENERATED_CATALOG.openrouter["google/gemini-2.5-flash"];
 
 				console.log(`\nOpenRouter / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.OPENROUTER_API_KEY });
@@ -778,7 +779,7 @@ describe("totalTokens field", () => {
 			"deepseek/deepseek-chat - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("openrouter", "deepseek/deepseek-chat");
+				const llm = GENERATED_CATALOG.openrouter["deepseek/deepseek-chat"];
 
 				console.log(`\nOpenRouter / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: process.env.OPENROUTER_API_KEY });
@@ -801,7 +802,7 @@ describe("totalTokens field", () => {
 			"claude-haiku-4.5 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("github-copilot", "claude-haiku-4.5");
+				const llm = GENERATED_CATALOG["github-copilot"]["claude-haiku-4.5"];
 
 				console.log(`\nGitHub Copilot / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: githubCopilotToken });
@@ -818,7 +819,7 @@ describe("totalTokens field", () => {
 			"claude-sonnet-4 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("github-copilot", "claude-sonnet-4.6");
+				const llm = GENERATED_CATALOG["github-copilot"]["claude-sonnet-4.6"];
 
 				console.log(`\nGitHub Copilot / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: githubCopilotToken });
@@ -843,7 +844,7 @@ describe("totalTokens field", () => {
 			"claude-sonnet-4-5 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("amazon-bedrock", "global.anthropic.claude-sonnet-4-5-20250929-v1:0");
+				const llm = GENERATED_CATALOG["amazon-bedrock"]["global.anthropic.claude-sonnet-4-5-20250929-v1:0"];
 
 				console.log(`\nAmazon Bedrock / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm);
@@ -866,7 +867,7 @@ describe("totalTokens field", () => {
 			"gpt-5.5 - should return totalTokens equal to sum of components",
 			{ retry: 3, timeout: 60000 },
 			async () => {
-				const llm = getModel("openai-codex", "gpt-5.5");
+				const llm = GENERATED_CATALOG["openai-codex"]["gpt-5.5"];
 
 				console.log(`\nOpenAI Codex / ${llm.id}:`);
 				const { first, second } = await testTotalTokensWithCache(llm, { apiKey: openaiCodexToken });

@@ -10,8 +10,8 @@
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { getModel } from "@earendil-works/pi-ai/compat";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { GENERATED_CATALOG } from "../../ai/test/fixtures/generated-catalog.ts";
 import type { AgentSession } from "../src/core/agent-session.ts";
 import {
 	type AgentSessionRuntime,
@@ -45,7 +45,7 @@ describe.skipIf(!API_KEY)("AgentSession forking", () => {
 	});
 
 	async function createSession(noSession: boolean = false) {
-		const model = getModel("anthropic", "claude-sonnet-4-5")!;
+		const model = GENERATED_CATALOG.anthropic["claude-sonnet-4-5"]!;
 		sessionManager = noSession ? SessionManager.inMemory(tempDir) : SessionManager.create(tempDir);
 		const authStorage = AuthStorage.create(join(tempDir, "auth.json"));
 		await authStorage.modify("anthropic", async () => ({ type: "api_key", key: API_KEY! }));

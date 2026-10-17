@@ -16,7 +16,6 @@ import {
 	type AssistantMessage,
 	type AssistantMessageEventStream,
 	type Context,
-	getModel,
 	type Model,
 	type SimpleStreamOptions,
 	Type,
@@ -25,6 +24,7 @@ import {
 	getOpenAICodexWebSocketDebugStats,
 	streamSimple as streamSimpleOpenAICodexResponses,
 } from "../../ai/src/api/openai-codex-responses.ts";
+import { GENERATED_CATALOG } from "../../ai/test/fixtures/generated-catalog.ts";
 import { AuthStorage } from "../src/core/auth-storage.ts";
 import { createExtensionRuntime } from "../src/core/extensions/loader.ts";
 import type { ToolDefinition } from "../src/core/extensions/types.ts";
@@ -279,7 +279,7 @@ async function main(): Promise<void> {
 	const authStorage = AuthStorage.create();
 	const modelRegistry = await createModelRegistry(authStorage);
 
-	const model = getModel("openai-codex", "gpt-5.5");
+	const model = GENERATED_CATALOG["openai-codex"]["gpt-5.5"];
 	if (!model) {
 		throw new Error("Model openai-codex/gpt-5.5 not found");
 	}

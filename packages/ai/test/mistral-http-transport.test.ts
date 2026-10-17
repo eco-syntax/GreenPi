@@ -2,8 +2,8 @@ import { arch, platform, release } from "node:os";
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
 import { stream as streamMistral } from "../src/api/mistral-conversations.ts";
-import { getModel } from "../src/compat.ts";
 import type { Context, FetchFunction, ProviderResponse } from "../src/types.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 
 const PI_USER_AGENT = `pi (${platform()} ${release()}; ${arch()})`;
 
@@ -38,7 +38,7 @@ function createTerminalEvent(finishReason = "stop") {
 
 describe("Mistral HTTP transport", () => {
 	it("serializes SDK-style payloads to the Mistral wire format", async () => {
-		const model = getModel("mistral", "mistral-large-latest");
+		const model = GENERATED_CATALOG.mistral["mistral-large-latest"];
 		const context: Context = {
 			systemPrompt: "Be precise",
 			messages: [
@@ -159,7 +159,7 @@ describe("Mistral HTTP transport", () => {
 	});
 
 	it("serializes assistant thinking, tool calls, and tool results for replay", async () => {
-		const model = getModel("mistral", "mistral-large-latest");
+		const model = GENERATED_CATALOG.mistral["mistral-large-latest"];
 		const context: Context = {
 			messages: [
 				{
@@ -236,7 +236,7 @@ describe("Mistral HTTP transport", () => {
 	});
 
 	it("parses native thinking, text, fragmented tool calls, and cached-token usage", async () => {
-		const model = getModel("mistral", "mistral-large-latest");
+		const model = GENERATED_CATALOG.mistral["mistral-large-latest"];
 		const context: Context = {
 			messages: [{ role: "user", content: "hello", timestamp: 1 }],
 		};
@@ -323,7 +323,7 @@ describe("Mistral HTTP transport", () => {
 	});
 
 	it("parses SSE and UTF-8 sequences split across transport chunks", async () => {
-		const model = getModel("mistral", "mistral-large-latest");
+		const model = GENERATED_CATALOG.mistral["mistral-large-latest"];
 		const context: Context = {
 			messages: [{ role: "user", content: "hello", timestamp: 1 }],
 		};
@@ -343,7 +343,7 @@ describe("Mistral HTTP transport", () => {
 
 	it("honors case-insensitive header overrides and explicit affinity suppression", async () => {
 		const model = {
-			...getModel("mistral", "mistral-large-latest"),
+			...GENERATED_CATALOG.mistral["mistral-large-latest"],
 			headers: { Authorization: "Bearer model-key", "X-Affinity": "model-affinity" },
 		};
 		const context: Context = {
@@ -368,7 +368,7 @@ describe("Mistral HTTP transport", () => {
 	});
 
 	it("aborts while waiting for an SSE chunk", async () => {
-		const model = getModel("mistral", "mistral-large-latest");
+		const model = GENERATED_CATALOG.mistral["mistral-large-latest"];
 		const context: Context = {
 			messages: [{ role: "user", content: "hello", timestamp: 1 }],
 		};
@@ -393,7 +393,7 @@ describe("Mistral HTTP transport", () => {
 	});
 
 	it("applies the request timeout while waiting for an SSE chunk", async () => {
-		const model = getModel("mistral", "mistral-large-latest");
+		const model = GENERATED_CATALOG.mistral["mistral-large-latest"];
 		const context: Context = {
 			messages: [{ role: "user", content: "hello", timestamp: 1 }],
 		};
@@ -416,7 +416,7 @@ describe("Mistral HTTP transport", () => {
 	});
 
 	it("preserves HTTP status and response bodies in errors", async () => {
-		const model = getModel("mistral", "mistral-large-latest");
+		const model = GENERATED_CATALOG.mistral["mistral-large-latest"];
 		const context: Context = {
 			messages: [{ role: "user", content: "hello", timestamp: 1 }],
 		};

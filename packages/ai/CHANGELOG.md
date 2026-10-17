@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- Removed all mainstream cloud provider integrations and their generated catalogs (OpenAI, Anthropic, Google, Groq, Mistral, xAI, and ~40 others). GreenPi ships only local inference (llama.cpp, LM Studio, Ollama, vLLM) and the green datacenter providers (GreenPT EU/US, Viro AI). The wire protocols (`openai-completions`, `anthropic-messages`, `openai-responses`, `google-generative-ai`, `bedrock-converse-stream`) remain for models.json-declared endpoints, which carry their own baseUrl/api key/models. Removed the models.dev/OpenRouter/NVIDIA/Vercel catalog hydration pipeline and image-model catalogs.
+
 ### Added
 
 - Added GreenPT US region provider `greenpt-us` (`https://api.us.greenpt.ai/v1`) with a curated chat-model subset; shares `GREENPT_API_KEY` with the EU provider.

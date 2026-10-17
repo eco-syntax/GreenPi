@@ -1,7 +1,8 @@
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
-import { complete, getEnvApiKey, getModel } from "../src/compat.ts";
+import { complete, getEnvApiKey } from "../src/compat.ts";
 import type { AssistantMessage, Context, Message, Tool, ToolCall } from "../src/types.ts";
+import { GENERATED_CATALOG } from "./fixtures/generated-catalog.ts";
 
 const testToolSchema = Type.Object({
 	value: Type.Number({ description: "A number to double" }),
@@ -17,7 +18,7 @@ describe.skipIf(!process.env.OPENAI_API_KEY || !process.env.ANTHROPIC_API_KEY)(
 	"OpenAI Responses reasoning replay e2e",
 	() => {
 		it("skips reasoning-only history after an aborted turn", { retry: 2 }, async () => {
-			const model = getModel("openai", "gpt-5-mini");
+			const model = GENERATED_CATALOG.openai["gpt-5-mini"];
 
 			const apiKey = getEnvApiKey("openai");
 			if (!apiKey) {
@@ -89,8 +90,8 @@ describe.skipIf(!process.env.OPENAI_API_KEY || !process.env.ANTHROPIC_API_KEY)(
 			// 5. Without fix: OpenAI returns 400 "function_call without required reasoning item"
 			// 6. With fix: tool calls/results converted to text, conversation continues
 
-			const modelA = getModel("openai", "gpt-5-mini");
-			const modelB = getModel("openai", "gpt-5.5");
+			const modelA = GENERATED_CATALOG.openai["gpt-5-mini"];
+			const modelB = GENERATED_CATALOG.openai["gpt-5.5"];
 
 			const apiKey = getEnvApiKey("openai");
 			if (!apiKey) {
@@ -188,8 +189,8 @@ describe.skipIf(!process.env.OPENAI_API_KEY || !process.env.ANTHROPIC_API_KEY)(
 			// 4. Tool call ID is Anthropic format (toolu_xxx), no OpenAI pairing history
 			// 5. Should work because foreign IDs have no pairing expectation
 
-			const anthropicModel = getModel("anthropic", "claude-sonnet-4-5");
-			const codexModel = getModel("openai", "gpt-5.5");
+			const anthropicModel = GENERATED_CATALOG.anthropic["claude-sonnet-4-5"];
+			const codexModel = GENERATED_CATALOG.openai["gpt-5.5"];
 
 			const anthropicApiKey = getEnvApiKey("anthropic");
 			const openaiApiKey = getEnvApiKey("openai");

@@ -84,26 +84,26 @@ try {
 	const catalogInputs = Array.from(contributingInputs).filter((input) =>
 		normalizePath(input).includes("packages/ai/src/providers/data/"),
 	);
-	if (catalogInputs.length !== 1 || !normalizePath(catalogInputs[0]).endsWith("/anthropic.json")) {
+	// GreenPi ships no generated provider catalogs at all.
+	if (catalogInputs.length !== 0) {
 		throw new Error(
-			`Agent selective-provider bundle catalogs: expected only anthropic.json, found ${catalogInputs.join(", ") || "none"}`,
+			`Agent selective-provider bundle unexpectedly includes generated catalogs: ${catalogInputs.join(", ")}`,
 		);
 	}
 
-	const aiSdkPackages = [
+	// The `openai` package is the HTTP client for the OpenAI-compatible wire
+	// protocol (what GreenPT and local servers speak). Vendor SDKs for
+	// mainstream providers must not ship.
+	const forbiddenAiSdkPackages = [
 		"@anthropic-ai/sdk",
 		"@aws-sdk/client-bedrock-runtime",
 		"@google/genai",
 		"@mistralai/mistralai",
-		"openai",
 	];
-	const includedAiSdkPackages = aiSdkPackages.filter((packageName) => includesNodePackage(inputs, packageName));
-	if (
-		includedAiSdkPackages.length !== 1 ||
-		includedAiSdkPackages[0] !== "@anthropic-ai/sdk"
-	) {
+	const includedAiSdkPackages = forbiddenAiSdkPackages.filter((packageName) => includesNodePackage(inputs, packageName));
+	if (includedAiSdkPackages.length !== 0) {
 		throw new Error(
-			`Agent selective-provider bundle SDKs: expected only @anthropic-ai/sdk, found ${includedAiSdkPackages.join(", ") || "none"}`,
+			`Agent selective-provider bundle unexpectedly includes provider SDKs: ${includedAiSdkPackages.join(", ")}`,
 		);
 	}
 

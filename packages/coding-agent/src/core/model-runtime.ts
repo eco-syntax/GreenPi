@@ -52,7 +52,6 @@ import {
 	resolveConfiguredModelHeaders,
 	validateExtensionProvider,
 } from "./provider-composer.ts";
-import { withRemoteCatalog } from "./remote-catalog-provider.ts";
 import { RuntimeCredentials } from "./runtime-credentials.ts";
 
 interface ModelRuntimeSnapshot {
@@ -88,7 +87,6 @@ export interface CreateModelRuntimeOptions {
 	allowModelNetwork?: boolean;
 	/** Timeout for the create-time network model refresh. */
 	modelRefreshTimeoutMs?: number;
-	catalogBaseUrl?: string;
 	/** Optional caller cancellation for initial cache restoration and availability checks. */
 	signal?: AbortSignal;
 	/** Skip initial catalog and availability refresh. Static models remain available. */
@@ -195,17 +193,9 @@ export class ModelRuntime implements Models {
 			(modelsPath
 				? new FileModelsStore(options.modelsStorePath ?? join(dirname(modelsPath), "models-store.json"))
 				: new InMemoryCodingAgentModelsStore());
-		const builtinModelDataGeneratedAt = builtinProviderCatalog.getBuiltinModelDataGeneratedAt();
 		const providers = builtinProviderCatalog
 			.builtinProviders()
-			.filter((provider) => options.allBuiltinProviders || DEFAULT_PRESENTED_PROVIDERS.has(provider.id))
-			.map((provider) =>
-				// Providers with their own refresh logic (dynamic catalogs) must not be
-				// wrapped: withRemoteCatalog would replace their refreshModels.
-				provider.refreshModels
-					? provider
-					: withRemoteCatalog(provider, options.catalogBaseUrl, builtinModelDataGeneratedAt),
-			);
+			.filter((provider) => options.allBuiltinProviders || DEFAULT_PRESENTED_PROVIDERS.has(provider.id));
 		const runtime = new ModelRuntime(
 			credentials,
 			config,

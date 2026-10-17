@@ -40,7 +40,7 @@ import { openAIResponsesApi } from "./api/openai-responses.lazy.ts";
 import { piMessagesApi } from "./api/pi-messages.lazy.ts";
 import { getEnvApiKey } from "./env-api-keys.ts";
 import type { ModelsApiStreamOptions } from "./models.ts";
-import { builtinModels, getBuiltinModel, getBuiltinModels, getBuiltinProviders } from "./providers/all.ts";
+import { builtinModels, builtinProviders, getBuiltinModels } from "./providers/all.ts";
 
 export type { BuiltinProvider } from "./providers/all.ts";
 
@@ -59,14 +59,20 @@ import type {
 	StreamOptions,
 } from "./types.ts";
 
-/** @deprecated Static catalog read. Use `getBuiltinModel` from "@earendil-works/pi-ai/providers/all" or `Models.getModel()`. */
-export const getModel = getBuiltinModel;
+/** @deprecated Runtime lookup over registered built-in providers. */
+export function getModel(provider: string, modelId: string): Model<Api> | undefined {
+	return getBuiltinModels(provider).find((model) => model.id === modelId);
+}
 
-/** @deprecated Static catalog read. Use `getBuiltinModels` from "@earendil-works/pi-ai/providers/all" or `Models.getModels()`. */
-export const getModels = getBuiltinModels;
+/** @deprecated Runtime lookup over registered built-in providers. */
+export function getModels(provider: string): readonly Model<Api>[] {
+	return getBuiltinModels(provider);
+}
 
-/** @deprecated Static catalog read. Use `getBuiltinProviders` from "@earendil-works/pi-ai/providers/all" or `Models.getProviders()`. */
-export const getProviders = getBuiltinProviders;
+/** @deprecated Runtime lookup over registered built-in providers. */
+export function getProviders(): string[] {
+	return builtinProviders().map((provider) => provider.id);
+}
 
 export type ApiStreamFunction = (
 	model: Model<Api>,
