@@ -40,3 +40,4 @@ These are good changes for upstream's goals; they are just not what GreenPi's us
 - When upstream lands a security fix, port it promptly.
 - Feature PRs against upstream that fit the 0.85.x architecture may be cherry-picked case by case; record them in the table above.
 - Changelog entries for ported fixes go under each package's `## [Unreleased]` with the original issue reference.
+- GreenPi has no update channel: the startup update check is disabled and `greenpi update` targets upstream's infrastructure and must not be used. Releases are published on the GitHub repository.

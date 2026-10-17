@@ -94,16 +94,10 @@ export async function getLatestPiVersion(
 	return (await getLatestPiRelease(currentVersion, options))?.version;
 }
 
-export async function checkForNewPiVersion(currentVersion: string): Promise<LatestPiRelease | undefined> {
-	if (process.env.PI_SKIP_VERSION_CHECK) return undefined;
-
-	try {
-		const latestRelease = await getLatestPiRelease(currentVersion);
-		if (latestRelease && isNewerPackageVersion(latestRelease.version, currentVersion)) {
-			return latestRelease;
-		}
-		return undefined;
-	} catch {
-		return undefined;
-	}
+export async function checkForNewPiVersion(_currentVersion: string): Promise<LatestPiRelease | undefined> {
+	// GreenPi has no update channel: pi.dev serves upstream releases, which must
+	// not be offered as GreenPi updates. New versions are published at
+	// https://github.com/ColbyBrown/GreenPi.
+	void _currentVersion;
+	return undefined;
 }
