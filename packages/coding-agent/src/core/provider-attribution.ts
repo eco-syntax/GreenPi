@@ -43,8 +43,8 @@ function getDefaultAttributionHeaders(
 
 	if (isOpenRouterModel(model)) {
 		return {
-			"HTTP-Referer": "https://pi.dev",
-			"X-OpenRouter-Title": "pi",
+			"HTTP-Referer": "https://github.com/ColbyBrown/GreenPi",
+			"X-OpenRouter-Title": "greenpi",
 			"X-OpenRouter-Categories": "cli-agent",
 		};
 	}

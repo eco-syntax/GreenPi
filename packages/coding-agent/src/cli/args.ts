@@ -434,7 +434,7 @@ ${chalk.bold("Environment Variables:")}
   PI_SERVER_ID                     - Logical experimental server ID (overridden by --server-id)
   PI_OFFLINE                       - Disable startup network operations when set to 1/true/yes
   PI_TELEMETRY                     - Override install telemetry when set to 1/true/yes or 0/false/no
-  PI_SHARE_VIEWER_URL              - Base URL for /share command (default: https://pi.dev/session/)
+  PI_SHARE_VIEWER_URL              - Base URL for a /share gist viewer (no default; gist URL shown instead)
 
 ${chalk.bold("Built-in Tool Names:")}
   read       - Read file contents

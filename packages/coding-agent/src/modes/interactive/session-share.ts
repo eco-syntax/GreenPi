@@ -124,8 +124,11 @@ async function shareViaGist(tmpFile: string, context: SessionShareContext): Prom
 			return;
 		}
 
-		const previewUrl = getShareViewerUrl(gistId);
-		context.showStatus(`Share URL: ${hyperlink(previewUrl, previewUrl)}\nGist: ${hyperlink(gistUrl, gistUrl)}`);
+		const viewerUrl = getShareViewerUrl(gistId);
+		const lines = viewerUrl
+			? `Share URL: ${hyperlink(viewerUrl, viewerUrl)}\nGist: ${hyperlink(gistUrl, gistUrl)}`
+			: `Gist: ${hyperlink(gistUrl, gistUrl)}`;
+		context.showStatus(lines);
 	} catch (error: unknown) {
 		if (!loader.signal.aborted) {
 			restoreEditor(loader, context);
