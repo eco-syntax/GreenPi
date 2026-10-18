@@ -36,7 +36,7 @@ Type `/` in the editor to open command completion. Extensions can register custo
 
 | Command | Description |
 |---------|-------------|
-| `/login`, `/logout` | Manage OAuth or API-key credentials |
+| `/login`, `/logout` | Manage provider credentials (API key; OAuth via extensions) |
 | [`/llama`](llama-cpp.md) | Download, load, and unload llama.cpp router models |
 | `/model` | Switch models; Ctrl+S in the picker saves the startup default |
 | `/thinking` | Switch thinking level; Ctrl+S in the picker saves the startup default |
@@ -152,17 +152,16 @@ pi [options] [--] [@files...] [messages...]
 pi install <source> [-l]     # Install package, -l for project-local
 pi remove <source> [-l]      # Remove package
 pi uninstall <source> [-l]   # Alias for remove
-pi update [source|self|pi]   # Update pi only, or one package source
-pi update --all              # Update pi and packages; reconcile pinned git refs
+pi update [source]           # Update one package source
+pi update --all              # Update packages; reconcile pinned git refs
 pi update --extensions       # Update packages only; reconcile pinned git refs
 pi update --models           # Refresh model catalogs only
-pi update --self             # Update pi only
 pi update --extension <src>  # Update one package
 pi list                      # List installed packages
 pi config                    # Enable/disable package resources
 ```
 
-These commands manage pi packages and `pi update` can update the pi CLI installation. To uninstall pi itself, see [Quickstart](quickstart.md#uninstall). `pi config` and project package commands accept `--approve`/`--no-approve` to trust or ignore project-local settings for one command. `pi update` never prompts for project trust.
+These commands manage pi packages. GreenPi has no self-update channel; update the CLI via its git repo or npm tag (see the repository README). `pi config` and project package commands accept `--approve`/`--no-approve` to trust or ignore project-local settings for one command. `pi update` never prompts for project trust.
 
 See [Pi Packages](packages.md) for package sources and security notes.
 

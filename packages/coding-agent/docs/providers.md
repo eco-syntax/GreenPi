@@ -134,7 +134,7 @@ The `key` field supports command execution, environment interpolation, and liter
   { "type": "api_key", "key": "public" }
   ```
 
-OAuth credentials are stored here after `/login` for providers that use OAuth.
+OAuth credentials are stored here only for providers that register an OAuth flow via an extension; built-in providers use API keys.
 
 ## llama.cpp
 

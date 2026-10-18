@@ -40,4 +40,12 @@ These are good changes for upstream's goals; they are just not what GreenPi's us
 - When upstream lands a security fix, port it promptly.
 - Feature PRs against upstream that fit the 0.85.x architecture may be cherry-picked case by case; record them in the table above.
 - Changelog entries for ported fixes go under each package's `## [Unreleased]` with the original issue reference.
-- GreenPi has no update channel: the startup update check is disabled and `greenpi update` targets upstream's infrastructure and must not be used. Releases are published on the GitHub repository.
+- GreenPi has no update channel. The startup update check is disabled and the pi.dev self-update/installer/telemetry plumbing is deleted: `greenpi update --self` prints a pointer to the GreenPi releases page, and `/share` shows the gist URL unless `PI_SHARE_VIEWER_URL` points at a viewer. Releases are published on the GitHub repository.
+
+## Stage 2 (upstream service / OAuth removal) — done
+
+- Mainstream cloud providers and the generated provider catalog are excised; models.json is the escape hatch (API keys / bearer tokens; wire protocols remain bundled).
+- All bundled mainstream OAuth flows are removed (Anthropic, OpenAI Codex, OpenRouter, Kimi Coding, xAI). Kept: the OAuth credential machinery used by models.json-declared endpoints (`ANTHROPIC_OAUTH_TOKEN` etc.), the wire-level Anthropic OAuth token header handling, and the pkce/oauth-page/device-code helpers used by the extension OAuth API.
+- Radius is fully removed: provider, gateway config, OAuth flow, session-share upload, and the experimental session relay (host, client transport, reconnect handling, `--auth-token` CLI options). Unix transport is the only experimental transport.
+- pi.dev service plumbing is removed: installer API, self-update, managed installs, report-install telemetry, latest-version check, the pi.dev share viewer default, and the pi.dev changelog link (now points at GreenPi releases).
+- Intentionally kept: `startup-ui.ts` `isOfficialDistribution()` (still guards upstream's first-time setup from running in this fork) and migrations.ts doc links to upstream's extensions docs (factual references to where the migrations came from).

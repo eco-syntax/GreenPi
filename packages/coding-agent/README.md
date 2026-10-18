@@ -1,7 +1,5 @@
 <p align="center">
-  <a href="https://pi.dev">
-    <img alt="pi logo" src="https://pi.dev/logo-auto.svg" width="128">
-  </a>
+  <img alt="GreenPi" src="https://pi.dev/logo-auto.svg" width="128">
 </p>
 <p align="center">
   <a href="https://discord.com/invite/3cU7Bz4UPx"><img alt="Discord" src="https://img.shields.io/badge/discord-community-5865F2?style=flat-square&logo=discord&logoColor=white" /></a>
@@ -68,11 +66,9 @@ npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 
 `--ignore-scripts` disables dependency lifecycle scripts during install. Pi does not require install scripts for normal npm installs.
 
-Installer alternative:
-
-```bash
-curl -fsSL https://pi.dev/install.sh | sh
-```
+GreenPi (this fork) is installed from its git repository or release tarballs — see
+[github.com/ColbyBrown/GreenPi](https://github.com/ColbyBrown/GreenPi). The upstream
+installer is not applicable.
 
 Authenticate with an API key:
 
@@ -283,14 +279,11 @@ If no extension or saved decision applies, `defaultProjectTrust` controls the fa
 
 Use `/trust` in interactive mode to save a project trust decision for future sessions, including trust for the immediate parent folder. It writes `~/.greenpi/agent/trust.json` only; the current session is not reloaded, so restart pi for changes to take effect.
 
-### Telemetry and update checks
+### Telemetry
 
-Pi has two separate startup features:
+- **Provider attribution headers:** optional attribution headers for OpenRouter, Cloudflare, and direct NVIDIA NIM requests. Opt out by setting `enableInstallTelemetry` to `false` in `settings.json`, or by setting `PI_TELEMETRY=0`. GreenPi sends no install/update telemetry and has no update channel.
 
-- **Update check:** fetches `https://pi.dev/api/latest-version` to check whether a newer Pi version exists. Disable it with `PI_SKIP_VERSION_CHECK=1`. Disabling update checks only turns off this check.
-- **Install/update telemetry:** after first install or a changelog-detected update, sends an anonymous version ping to `https://pi.dev/api/report-install`. This setting also controls optional provider attribution headers for OpenRouter, Cloudflare, and direct NVIDIA NIM requests. Opt out by setting `enableInstallTelemetry` to `false` in `settings.json`, or by setting `PI_TELEMETRY=0`. This does not disable update checks; Pi may still contact `pi.dev` for the latest version unless update checks are disabled or offline mode is enabled.
-
-Use `--offline` or `PI_OFFLINE=1` to disable all startup network operations described here, including update checks, package update checks, and install/update telemetry.
+Use `--offline` or `PI_OFFLINE=1` to disable all startup network operations described here, including package update checks.
 
 ---
 
@@ -655,9 +648,8 @@ pi --thinking high "Solve this complex problem"
 | `PI_PACKAGE_DIR` | Override package directory (useful for Nix/Guix where store paths tokenize poorly) |
 | `PI_SERVER_DIR` | Override experimental server profile and socket directory (default: `~/.pi/server`) |
 | `PI_SERVER_ID` | Select the logical experimental server ID when `--server-id` is omitted |
-| `PI_OFFLINE` | Disable startup network operations, including update checks, package update checks, and install/update telemetry |
-| `PI_SKIP_VERSION_CHECK` | Skip the Pi version update check at startup. This prevents the `pi.dev` latest-version request |
-| `PI_TELEMETRY` | Override install/update telemetry and provider attribution headers. Use `1`/`true`/`yes` to enable or `0`/`false`/`no` to disable. This does not disable update checks |
+| `PI_OFFLINE` | Disable startup network operations, including package update checks |
+| `PI_TELEMETRY` | Override provider attribution headers. Use `1`/`true`/`yes` to enable or `0`/`false`/`no` to disable |
 | `PI_CACHE_RETENTION` | Set to `long` for extended prompt cache (Anthropic: 1h, OpenAI: 24h) |
 | `VISUAL`, `EDITOR` | Fallback external editor for Ctrl+G when `externalEditor` is unset; defaults to Notepad on Windows and `nano` elsewhere |
 
@@ -690,7 +682,5 @@ MIT
 - [@earendil-works/pi-tui](https://www.npmjs.com/package/@earendil-works/pi-tui): Terminal UI components
 
 <p align="center">
-  <a href="https://pi.dev">pi.dev</a> domain graciously donated by
-  <br /><br />
-  <a href="https://exe.dev"><img src="docs/images/exy.png" alt="Exy mascot" width="48" /><br />exe.dev</a>
+  <a href="https://exe.dev"><img src="docs/images/exy.png" alt="Exy mascot" width="48" /><br />GreenPi is a fork of pi by earendil-works (exe.dev)</a>
 </p>

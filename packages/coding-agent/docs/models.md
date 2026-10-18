@@ -136,7 +136,6 @@ Set `api` at provider level (default for all models) or model level (override pe
 | `baseUrl` | API endpoint URL |
 | `api` | API type (see above) |
 | `apiKey` | Optional API key config (see value resolution below). Omit it when auth is provided by `/login`/`auth.json` or CLI `--api-key`. |
-| `oauth` | Dynamic OAuth provider type. Currently supports `"radius"`; requires the gateway `baseUrl`. |
 | `headers` | Custom headers (see value resolution below) |
 | `authHeader` | Set `true` to add `Authorization: Bearer <apiKey>` automatically |
 | `models` | Array of model configurations |
@@ -313,7 +312,7 @@ Route a built-in provider through a proxy without redefining models:
 }
 ```
 
-All built-in Anthropic models remain available. Existing OAuth or API key auth continues to work.
+Anthropic models can be routed through a proxy this way; auth is by API key or bearer token (see [providers.md](providers.md)).
 
 To merge custom models into a built-in provider, include the `models` array:
 

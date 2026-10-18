@@ -12,13 +12,11 @@ npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 
 `--ignore-scripts` disables dependency lifecycle scripts during install. Pi does not require install scripts for normal npm installs.
 
-On Linux or macOS, you can also use the installer:
+GreenPi (this fork) is installed from its git repository or a release tarball; see the
+[GreenPi repository](https://github.com/ColbyBrown/GreenPi). The upstream installer is not
+applicable: `https://pi.dev` serves upstream pi releases.
 
-```bash
-curl -fsSL https://pi.dev/install.sh | sh
-```
-
-To uninstall pi itself, use npm for curl and npm installs:
+To uninstall pi itself, use npm for npm installs:
 
 ```bash
 npm uninstall -g @earendil-works/pi-coding-agent

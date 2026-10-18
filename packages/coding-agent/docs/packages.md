@@ -28,12 +28,10 @@ pi install ./relative/path/to/package
 
 pi remove npm:@foo/bar
 pi list                     # show installed packages from settings
-pi update                   # update pi only
-pi update --all             # update pi, update packages, and reconcile pinned git refs
+pi update                   # print the current update channel note
+pi update --all             # update packages and reconcile pinned git refs
 pi update --extensions      # update packages and reconcile pinned git refs only
 pi update --models          # refresh model catalogs only
-pi update --self            # update pi only
-pi update --self --force    # reinstall pi even if current
 pi update npm:@foo/bar      # update one package
 pi update --extension npm:@foo/bar
 ```
@@ -134,7 +132,7 @@ Paths are relative to the package root. Arrays support glob patterns and `!exclu
 
 ### Gallery Metadata
 
-The [package gallery](https://pi.dev/packages) displays packages tagged with `pi-package`. Add `video` or `image` fields to show a preview:
+Packages tagged with `pi-package` are discoverable on npm (search npm for the `pi-package` keyword). Add `video` or `image` fields to show a preview in compatible galleries:
 
 ```json
 {
