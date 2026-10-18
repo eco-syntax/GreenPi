@@ -19,7 +19,6 @@ import type { ModelRuntime } from "./model-runtime.ts";
 /** Default model IDs for each known provider; omitted entries fall back to the
  * provider's first available model. */
 export const defaultModelPerProvider: Partial<Record<KnownProvider, string>> = {
-	radius: "auto",
 	greenpt: "glm-5.2",
 	"greenpt-us": "glm-5.3",
 };

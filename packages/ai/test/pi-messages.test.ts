@@ -68,9 +68,9 @@ async function startServer(options: ResponderOptions): Promise<{ baseUrl: string
 function createModel(baseUrl: string): Model<"pi-messages"> {
 	return {
 		id: "auto",
-		name: "Radius Auto",
+		name: "Gateway Auto",
 		api: "pi-messages",
-		provider: "radius",
+		provider: "gateway",
 		baseUrl,
 		reasoning: false,
 		input: ["text"],
@@ -144,7 +144,7 @@ describe("pi-messages", () => {
 		expect(message.responseId).toBe("resp_1");
 		expect(message.providerThinkingLevel).toBe("high");
 		expect(message.model).toBe("auto");
-		expect(message.provider).toBe("radius");
+		expect(message.provider).toBe("gateway");
 		expect(message.content).toEqual([
 			{ type: "text", text: "Hello", textSignature: undefined },
 			{ type: "toolCall", id: "call_1", name: "read", arguments: { path: "a.txt" } },

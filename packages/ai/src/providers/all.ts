@@ -9,10 +9,7 @@ import {
 	unslothProvider,
 	vllmProvider,
 } from "./local.ts";
-import { radiusProvider } from "./radius.ts";
 import { viroProvider } from "./viro.ts";
-
-export { radiusProvider };
 
 export type BuiltinProvider =
 	| "greenpt"
@@ -23,8 +20,7 @@ export type BuiltinProvider =
 	| "ollama"
 	| "vllm"
 	| "strata"
-	| "unsloth"
-	| "radius";
+	| "unsloth";
 
 /** All built-in providers, freshly constructed. GreenPi ships only local
  * inference and the green datacenter providers; anything else is declared via
@@ -40,7 +36,6 @@ export function builtinProviders(): Provider[] {
 		vllmProvider(),
 		strataProvider(),
 		unslothProvider(),
-		radiusProvider(),
 	];
 }
 

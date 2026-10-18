@@ -32,7 +32,7 @@ export type KnownImagesApi = "openrouter-images";
 
 export type ImagesApi = KnownImagesApi | (string & {});
 
-export type KnownProvider = "radius" | "greenpt" | "greenpt-us" | "viro" | "lmstudio" | "ollama" | "vllm" | "llama-cpp";
+export type KnownProvider = "greenpt" | "greenpt-us" | "viro" | "lmstudio" | "ollama" | "vllm" | "llama-cpp";
 export type ProviderId = KnownProvider | string;
 
 export type KnownImagesProvider = "openrouter";
