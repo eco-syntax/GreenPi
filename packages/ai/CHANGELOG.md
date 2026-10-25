@@ -8,6 +8,7 @@
 
 ### Added
 
+- Local inference providers (LM Studio, Ollama, vLLM, llama.cpp server, Strata, Unsloth Studio) now prompt for the server URL during `/login` (Enter keeps the default endpoint) and use the stored URL for model discovery and requests.
 - Added Strata (local OpenAI-compatible engine, port 8080, optional key) and Unsloth Studio (llama-server-backed API with required `sk-unsloth-…` key) providers with dynamic model discovery.
 - Added GreenPT US region provider `greenpt-us` (`https://api.us.greenpt.ai/v1`) with a curated chat-model subset; shares `GREENPT_API_KEY` with the EU provider.
 - Added `RetryPolicy.maxAgentDelayMs` support to cap shared assistant retry backoff for summarization calls ([#8826](https://github.com/earendil-works/pi/issues/8826)).

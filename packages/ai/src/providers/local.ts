@@ -19,15 +19,36 @@ const OPENAI_COMPATIBLE_COMPAT: OpenAICompletionsCompat = {
 /**
  * Auth for servers that usually run without a key: a stored credential or env
  * var wins, otherwise requests are sent with a dummy bearer token (local
- * servers ignore the Authorization header).
+ * servers ignore the Authorization header). The login flow also asks for the
+ * server URL so /login can point the provider at a non-default host/port;
+ * pressing Enter keeps the built-in default.
  */
-function optionalApiKeyAuth(name: string, envVars: readonly string[]): ApiKeyAuth {
+const CREDENTIAL_BASE_URL_ENV = "BASE_URL";
+
+function optionalApiKeyAuth(name: string, baseUrl: string, envVars: readonly string[]): ApiKeyAuth {
 	const base = envApiKeyAuth(name, envVars);
 	return {
 		name,
-		login: base.login,
+		login: async (interaction) => {
+			interaction.signal.throwIfAborted();
+			const enteredUrl = await interaction.prompt({
+				type: "text",
+				message: `Server URL (Enter for ${baseUrl})`,
+			});
+			const url = enteredUrl.trim() || baseUrl;
+			const key = await base.login?.(interaction);
+			if (!key) throw new Error("Login cancelled");
+			return { ...key, env: { ...key.env, [CREDENTIAL_BASE_URL_ENV]: url } };
+		},
 		check: async () => ({ type: "api_key", source: "local server" }),
-		resolve: async (input) => (await base.resolve(input)) ?? { auth: { apiKey: "local" }, source: "local server" },
+		resolve: async (input) => {
+			const resolved = await base.resolve(input);
+			const url = input.credential?.env?.[CREDENTIAL_BASE_URL_ENV];
+			if (resolved) {
+				return url ? { ...resolved, auth: { ...resolved.auth, baseUrl: url } } : resolved;
+			}
+			return url ? { auth: { apiKey: "local", baseUrl: url }, source: "stored credential" } : undefined;
+		},
 	};
 }
 
@@ -95,15 +116,13 @@ function localProvider(options: LocalProviderOptions): Provider<"openai-completi
 		id: options.id,
 		name: options.name,
 		baseUrl: options.baseUrl,
-		auth: { apiKey: optionalApiKeyAuth(`${options.name} API key (optional)`, options.envVars) },
+		auth: { apiKey: optionalApiKeyAuth(`${options.name} API key (optional)`, options.baseUrl, options.envVars) },
 		models: [],
-		fetchModels: async (context) =>
-			await fetchOpenAICompatibleModels(
-				options.id,
-				options.baseUrl,
-				context.signal,
-				context.credential?.type === "api_key" ? context.credential.key : undefined,
-			),
+		fetchModels: async (context) => {
+			const credential = context.credential?.type === "api_key" ? context.credential : undefined;
+			const baseUrl = credential?.env?.[CREDENTIAL_BASE_URL_ENV] ?? options.baseUrl;
+			return await fetchOpenAICompatibleModels(options.id, baseUrl, context.signal, credential?.key);
+		},
 		api: openAICompletionsApi(),
 	});
 }
@@ -159,19 +178,37 @@ export function strataProvider(): Provider<"openai-completions"> {
  * replacement. Requires the generated `sk-unsloth-…` key on every request.
  */
 export function unslothProvider(): Provider<"openai-completions"> {
+	const baseUrl = "http://localhost:8888/v1";
 	return createProvider({
 		id: "unsloth",
 		name: "Unsloth Studio",
-		baseUrl: "http://localhost:8888/v1",
-		auth: { apiKey: envApiKeyAuth("Unsloth API key", ["UNSLOTH_API_KEY"]) },
+		baseUrl,
+		auth: {
+			apiKey: {
+				...envApiKeyAuth("Unsloth API key", ["UNSLOTH_API_KEY"]),
+				login: async (interaction) => {
+					interaction.signal.throwIfAborted();
+					const enteredUrl = await interaction.prompt({
+						type: "text",
+						message: `Server URL (Enter for ${baseUrl})`,
+					});
+					const url = enteredUrl.trim() || baseUrl;
+					const key = await envApiKeyAuth("Unsloth API key", ["UNSLOTH_API_KEY"]).login?.(interaction);
+					if (!key) throw new Error("Login cancelled");
+					return { ...key, env: { ...key.env, [CREDENTIAL_BASE_URL_ENV]: url } };
+				},
+			},
+		},
 		models: [],
-		fetchModels: async (context) =>
-			await fetchOpenAICompatibleModels(
+		fetchModels: async (context) => {
+			const credential = context.credential?.type === "api_key" ? context.credential : undefined;
+			return await fetchOpenAICompatibleModels(
 				"unsloth",
-				"http://localhost:8888/v1",
+				credential?.env?.[CREDENTIAL_BASE_URL_ENV] ?? baseUrl,
 				context.signal,
-				context.credential?.type === "api_key" ? context.credential.key : undefined,
-			),
+				credential?.key,
+			);
+		},
 		api: openAICompletionsApi(),
 	});
 }
