@@ -37,6 +37,7 @@ import {
 	type StreamOptions,
 } from "@earendil-works/pi-ai";
 import * as builtinProviderCatalog from "@earendil-works/pi-ai/providers/all";
+import { customProviderFromCredential } from "@earendil-works/pi-ai/providers/custom";
 import { getAgentDir } from "../config.ts";
 import { operationSignal, raceWithAbortSignal } from "../utils/abort.ts";
 import { AuthStorage as DefaultAuthStorage } from "./auth-storage.ts";
@@ -145,6 +146,7 @@ function mergeHeaders(
 /** Configured pi-ai Models collection used by coding-agent and SDK consumers. */
 export class ModelRuntime implements Models {
 	private readonly models: MutableModels;
+	private readonly modelsStore: ModelsStore;
 	private readonly credentials: RuntimeCredentials;
 	private readonly defaultBuiltins: ReadonlyMap<string, Provider>;
 	private readonly builtins = new Map<string, Provider>();
@@ -179,10 +181,28 @@ export class ModelRuntime implements Models {
 		this.config = config;
 		this.modelsPath = modelsPath;
 		this.modelNetworkEnabled = modelNetworkEnabled;
+		this.modelsStore = modelsStore;
 		this.defaultBuiltins = new Map(providers.map((provider) => [provider.id, provider]));
 		for (const [providerId, provider] of this.defaultBuiltins) this.builtins.set(providerId, provider);
 		this.models = createModels({ credentials, modelsStore });
 		this.rebuildProviders();
+	}
+
+	/**
+	 * Re-register custom OpenAI-compatible endpoints from stored credentials.
+	 * A credential for a provider unknown to builtins/config carrying the
+	 * custom-endpoint env markers was created by the /login custom-endpoint
+	 * flow; the provider itself is not persisted, so it is rebuilt here.
+	 */
+	private async restoreCustomProvidersFromCredentials(): Promise<void> {
+		const credentials = await this.credentials.list();
+		for (const { providerId } of credentials) {
+			if (this.builtins.has(providerId) || this.config.getProvider(providerId)) continue;
+			const credential = await this.credentials.read(providerId);
+			if (!credential) continue;
+			const provider = customProviderFromCredential(providerId, credential);
+			if (provider) this.nativeExtensionProviders.set(providerId, provider);
+		}
 	}
 
 	static async create(options: CreateModelRuntimeOptions = {}): Promise<ModelRuntime> {
@@ -206,6 +226,7 @@ export class ModelRuntime implements Models {
 			providers,
 			process.env.PI_OFFLINE === undefined,
 		);
+		await runtime.restoreCustomProvidersFromCredentials();
 		runtime.rebuildProviders();
 		const refreshFromNetwork = runtime.modelNetworkEnabled && options.allowModelNetwork === true;
 		const controller =
@@ -685,6 +706,12 @@ export class ModelRuntime implements Models {
 		return this.enqueueCredentialOperation(providerId, signal, async () => {
 			await this.models.logout(providerId, { signal });
 			await this.synchronizeCredentialState(providerId, "logout", undefined, signal);
+			// Custom endpoints registered from /login exist only through their
+			// credential; remove the provider and its cached model catalog.
+			if (this.nativeExtensionProviders.get(providerId)?.isCustomEndpoint) {
+				this.unregisterProvider(providerId);
+				await this.modelsStore.delete(providerId, { signal });
+			}
 		});
 	}
 

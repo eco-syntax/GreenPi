@@ -10,6 +10,7 @@ import * as path from "node:path";
 import type { AgentMessage, ThinkingLevel } from "@earendil-works/pi-agent-core";
 import type { AuthEvent, AuthPrompt } from "@earendil-works/pi-ai";
 import type { AssistantMessage, ImageContent, Message, Model, Usage } from "@earendil-works/pi-ai/compat";
+import { customOpenAICompatibleProvider } from "@earendil-works/pi-ai/providers/custom";
 import type {
 	AutocompleteItem,
 	AutocompleteProvider,
@@ -342,6 +343,15 @@ function getLoginProviderSearchText(provider: LoginProviderCompletionOption): st
 function formatLoginProviderCompletionDescription(provider: LoginProviderCompletionOption): string {
 	const authTypes = provider.authTypes.map(formatAuthSelectorProviderType).join("/");
 	return provider.name === provider.id ? authTypes : `${provider.name} · ${authTypes}`;
+}
+
+/** Derive a stable provider id from a user-entered display name. */
+function slugifyCustomProviderId(name: string): string {
+	const slug = name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "");
+	return slug || "custom-endpoint";
 }
 
 /**
@@ -5493,6 +5503,7 @@ export class InteractiveMode {
 			oauthProvider?.method && "loginLabel" in oauthProvider.method ? oauthProvider.method.loginLabel : undefined;
 		const subscriptionLabel = oauthLoginLabel ?? "Sign in with an account";
 		const apiKeyLabel = "Sign in with an API key";
+		const customEndpointLabel = "Custom OpenAI-compatible endpoint";
 		const availableAuthTypes = providerOptions
 			? new Set(providerOptions.map((provider) => provider.authType))
 			: new Set<AuthSelectorProvider["authType"]>(["oauth", "api_key"]);
@@ -5502,6 +5513,11 @@ export class InteractiveMode {
 		}
 		if (availableAuthTypes.has("api_key")) {
 			options.push(apiKeyLabel);
+		}
+		// The generic endpoint option only appears at the top-level selector,
+		// never for a specific provider's method choice.
+		if (!providerOptions) {
+			options.push(customEndpointLabel);
 		}
 
 		if (options.length === 0) {
@@ -5526,6 +5542,10 @@ export class InteractiveMode {
 				options,
 				(option) => {
 					done();
+					if (option === customEndpointLabel) {
+						void this.showCustomEndpointLoginDialog();
+						return;
+					}
 					const authType = option === subscriptionLabel ? "oauth" : "api_key";
 					if (providerOptions) {
 						const providerOption = providerOptions.find((provider) => provider.authType === authType);
@@ -5795,6 +5815,71 @@ export class InteractiveMode {
 				);
 			} else if (errorMsg !== "Login cancelled") {
 				this.showError(`Failed to save API key for ${providerName}: ${errorMsg}`);
+			}
+		}
+	}
+
+	/**
+	 * /login → "Custom OpenAI-compatible endpoint": prompts for a display name
+	 * and server URL, registers a dynamic provider, then runs the standard
+	 * API-key login against it. The credential (and the provider, via
+	 * registerNativeProvider) persists across sessions; /logout removes the
+	 * credential but the endpoint stays registered for the running session.
+	 */
+	private async showCustomEndpointLoginDialog(): Promise<void> {
+		const dialog = new LoginDialogComponent(
+			this.ui,
+			"custom",
+			(_success, _message) => {},
+			"Custom endpoint",
+			"Add custom OpenAI-compatible endpoint",
+		);
+		dialog.showDetails([theme.fg("muted", "Discovers models from GET <url>/models (OpenAI-compatible).")]);
+		this.editorContainer.clear();
+		this.editorContainer.addChild(dialog);
+		this.ui.setFocus(dialog);
+		this.ui.requestRender();
+
+		const restoreEditor = () => {
+			this.editorContainer.clear();
+			this.editorContainer.addChild(this.editor);
+			this.ui.setFocus(this.editor);
+			this.ui.requestRender();
+		};
+
+		try {
+			const enteredName = (await dialog.showPrompt("Provider name")).trim();
+			if (!enteredName) throw new Error("Provider name is required");
+			const enteredUrl = (await dialog.showPrompt("Server URL", "http://localhost:8080/v1")).trim();
+			if (!enteredUrl) throw new Error("Server URL is required");
+			let baseUrl: URL;
+			try {
+				baseUrl = new URL(enteredUrl);
+			} catch {
+				throw new Error(`Invalid server URL: ${enteredUrl}`);
+			}
+			if (baseUrl.protocol !== "http:" && baseUrl.protocol !== "https:") {
+				throw new Error(`Server URL must be http or https: ${enteredUrl}`);
+			}
+
+			const providerId = slugifyCustomProviderId(enteredName);
+			if (this.session.modelRuntime.getProvider(providerId)) {
+				throw new Error(
+					`A provider with id "${providerId}" already exists. Choose a different name or use /login ${providerId}.`,
+				);
+			}
+
+			this.session.modelRuntime.registerNativeProvider(
+				customOpenAICompatibleProvider({ id: providerId, name: enteredName, baseUrl: enteredUrl }),
+			);
+
+			restoreEditor();
+			await this.showApiKeyLoginDialog(providerId, enteredName);
+		} catch (error: unknown) {
+			restoreEditor();
+			const errorMsg = error instanceof Error ? error.message : String(error);
+			if (errorMsg !== "Login cancelled") {
+				this.showError(`Custom endpoint setup failed: ${errorMsg}`);
 			}
 		}
 	}

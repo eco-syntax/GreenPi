@@ -44,7 +44,7 @@ pi --provider viro
 
 On first interactive startup, pi offers to set up llama.cpp as the default local provider: it installs a pinned `llama-server`, starts it on `http://127.0.0.1:8080` (`LLAMA_BASE_URL` overrides), downloads the default model, and saves it as the startup default. See [llama-cpp.md](llama-cpp.md).
 
-LM Studio, Ollama, vLLM, and a bring-your-own llama.cpp server run locally and need no API key (optional env vars are supported). Pi discovers their models from the OpenAI-compatible `GET /models` endpoint at startup.
+LM Studio, Ollama, vLLM, and a bring-your-own llama.cpp server run locally and need no API key (optional env vars are supported). Pi discovers their models from the OpenAI-compatible `GET /models` endpoint at startup. `/login <provider>` for these also asks for the server URL (Enter keeps the default), so a server on a non-default host or port can be configured without models.json.
 
 | Provider | Default endpoint | Key env var |
 |----------|------------------|-------------|
@@ -64,6 +64,8 @@ greenpi --provider lmstudio      # or ollama / vllm / llama-cpp / strata / unslo
 Discovered models assume a 128k context window and 8k output; override per model with `models.json` `modelOverrides` (see [models.md](models.md)).
 
 ## Other Endpoints (models.json)
+
+For one-off endpoints there is also `/login` → **Custom OpenAI-compatible endpoint**: enter a provider name and server URL (plus an optional API key), and pi registers the provider for this and future sessions, discovering models from `GET <url>/models`. `/logout` removes it again. For anything that needs more control (API dialect, model metadata, headers), use models.json instead.
 
 GreenPi ships no mainstream cloud providers. To point GreenPi at any other OpenAI-compatible (or Anthropic/Responses-speaking) endpoint, declare it via `models.json` with its `baseUrl`, API dialect, API key, and models (see [models.md](models.md)). The wire protocols (`openai-completions`, `anthropic-messages`, `openai-responses`, `google-generative-ai`, `bedrock-converse-stream`) are bundled for this purpose.
 

@@ -15,6 +15,7 @@ const OPENAI_COMPATIBLE_COMPAT: OpenAICompletionsCompat = {
 	maxTokensField: "max_tokens",
 	supportsStrictMode: false,
 };
+export { OPENAI_COMPATIBLE_COMPAT };
 
 /**
  * Auth for servers that usually run without a key: a stored credential or env

@@ -100,6 +100,12 @@ export interface Provider<TApi extends Api = Api> {
 
 	readonly baseUrl?: string;
 	readonly headers?: ProviderHeaders;
+	/**
+	 * True for endpoints dynamically registered from /login that live only
+	 * through their stored credential: logging out removes the provider and
+	 * its cached model catalog.
+	 */
+	readonly isCustomEndpoint?: true;
 
 	/**
 	 * Required: at least one of `apiKey`/`oauth`. Every provider has auth
@@ -755,6 +761,8 @@ export interface CreateProviderOptions<TApi extends Api = Api> {
 	name?: string;
 	baseUrl?: string;
 	headers?: ProviderHeaders;
+	/** Marks a /login-registered endpoint: logout removes the provider and its cached catalog. */
+	isCustomEndpoint?: true;
 	/** Required — every provider has auth semantics, even ambient/keyless ones. */
 	auth: ProviderAuth;
 	/** Static baseline model list (empty for purely dynamic providers). */
@@ -809,6 +817,7 @@ export function createProvider<TApi extends Api = Api>(input: CreateProviderOpti
 		name: input.name ?? input.id,
 		baseUrl: input.baseUrl,
 		headers: input.headers,
+		isCustomEndpoint: input.isCustomEndpoint,
 		auth: input.auth,
 		getModels: currentModels,
 		refreshModels: fetchModels
