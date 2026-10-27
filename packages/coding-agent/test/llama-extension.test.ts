@@ -253,8 +253,11 @@ describe("llama.cpp extension", () => {
 		});
 
 		expect(propsRequests).toBe(1);
-		expect(controller.provider.getModels().map((model) => model.id)).toEqual(["preset"]);
-		expect(cachedEntry?.models.map((model) => model.id)).toEqual(["preset"]);
+		// "cache" stays excluded (not router-managed); "models-dir" is selectable —
+		// current llama.cpp routers report --models-dir discoveries as
+		// source:"models_dir" and autoload them on first use just like presets.
+		expect(controller.provider.getModels().map((model) => model.id)).toEqual(["preset", "models-dir"]);
+		expect(cachedEntry?.models.map((model) => model.id)).toEqual(["preset", "models-dir"]);
 	});
 
 	it("hides unloaded presets when router autoload is disabled", async () => {

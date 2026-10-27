@@ -25,12 +25,21 @@ async function resolveServerUrl(
 	return configured ? normalizeLlamaServerUrl(configured) : undefined;
 }
 
+// Router-managed model sources the router can autoload on first use: "preset"
+// (declared in a config preset) and "models_dir" (discovered via --models-dir).
+const AUTOLOADABLE_SOURCE: Record<string, true> = { preset: true, models_dir: true };
+
 function modelIsSelectable(model: LlamaModelInfo, routerAutoload: boolean): boolean {
 	if (model.status.value === "loaded") return true;
 	// llama.cpp reports idle-slept models as "sleeping"; requests wake them automatically.
 	if (model.status.value === "sleeping") return true;
-	// Unloaded presets are routable only when llama.cpp router autoload can load them on first use.
-	return routerAutoload && model.status.value === "unloaded" && !model.status.failed && model.source === "preset";
+	// Unloaded router-managed models are routable only when router autoload can load them on first use.
+	return (
+		routerAutoload &&
+		model.status.value === "unloaded" &&
+		!model.status.failed &&
+		AUTOLOADABLE_SOURCE[model.source ?? ""] === true
+	);
 }
 
 async function routerAutoloadEnabled(
@@ -38,7 +47,8 @@ async function routerAutoloadEnabled(
 	catalog: readonly LlamaModelInfo[],
 	signal: AbortSignal,
 ): Promise<boolean> {
-	if (!catalog.some((model) => model.status.value === "unloaded" && model.source === "preset")) return false;
+	if (!catalog.some((model) => model.status.value === "unloaded" && AUTOLOADABLE_SOURCE[model.source ?? ""] === true))
+		return false;
 	try {
 		return (await client.props({ signal })).models_autoload === true;
 	} catch {
